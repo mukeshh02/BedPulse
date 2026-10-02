@@ -136,47 +136,105 @@ export const DataService = {
     provisionalDiagnosis: string;
     notes?: string;
   }): Promise<{ patient: Patient; admission: Admission }> {
-    const newPatient: Patient = {
-      ...data.patient,
-      id: 'p-' + Date.now(),
-      uhid: 'UHID-' + Math.floor(1000 + Math.random() * 9000),
-      created_at: new Date().toISOString(),
-    };
+    const generatedUhid = 'UHID-' + Math.floor(1000 + Math.random() * 9000);
+    const generatedAdmNo = 'IPD-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
 
-    const newAdmission: Admission = {
-      id: 'adm-' + Date.now(),
-      admission_number: 'IPD-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
-      patient_id: newPatient.id,
-      patient: newPatient,
-      bed_id: data.bedId,
-      ward_id: data.wardId,
-      admitting_doctor: data.admittingDoctor,
-      provisional_diagnosis: data.provisionalDiagnosis,
-      admission_date: new Date().toISOString(),
-      status: 'admitted',
-      notes: data.notes,
-      created_at: new Date().toISOString(),
-    };
+    let savedPatient: Patient;
+    let savedAdmission: Admission;
 
     if (isSupabaseConfigured && supabase) {
-      const { data: pData } = await supabase.from('patients').insert([newPatient]).select().single();
-      if (pData) {
-        newAdmission.patient_id = pData.id;
-        await supabase.from('admissions').insert([newAdmission]);
-        await supabase.from('beds').update({ status: 'occupied' }).eq('id', data.bedId);
+      // 1. Insert patient into Supabase (let Postgres generate UUID)
+      const patientPayload = {
+        uhid: generatedUhid,
+        full_name: data.patient.full_name,
+        age: data.patient.age,
+        gender: data.patient.gender,
+        mobile: data.patient.mobile,
+        guardian_name: data.patient.guardian_name || null,
+        guardian_mobile: data.patient.guardian_mobile || null,
+        address: data.patient.address || null,
+      };
+
+      const { data: pData, error: pError } = await supabase
+        .from('patients')
+        .insert([patientPayload])
+        .select()
+        .single();
+
+      if (pError || !pData) {
+        console.error('Supabase patient insert error:', pError);
+        throw new Error(pError?.message || 'Failed to save patient to database.');
       }
+
+      savedPatient = pData as Patient;
+
+      // 2. Insert admission into Supabase
+      const admissionPayload = {
+        admission_number: generatedAdmNo,
+        patient_id: savedPatient.id,
+        bed_id: data.bedId,
+        ward_id: data.wardId,
+        admitting_doctor: data.admittingDoctor,
+        provisional_diagnosis: data.provisionalDiagnosis,
+        admission_date: new Date().toISOString(),
+        status: 'admitted',
+        notes: data.notes || '',
+      };
+
+      const { data: aData, error: aError } = await supabase
+        .from('admissions')
+        .insert([admissionPayload])
+        .select('*, patient:patients(*), bed:beds(*), ward:wards(*)')
+        .single();
+
+      if (aError || !aData) {
+        console.error('Supabase admission insert error:', aError);
+        throw new Error(aError?.message || 'Failed to save admission to database.');
+      }
+
+      savedAdmission = aData as Admission;
+
+      // 3. Mark bed as occupied in Supabase
+      await supabase
+        .from('beds')
+        .update({ status: 'occupied', updated_at: new Date().toISOString() })
+        .eq('id', data.bedId);
+    } else {
+      // LocalStorage fallback
+      savedPatient = {
+        ...data.patient,
+        id: 'p-' + Date.now(),
+        uhid: generatedUhid,
+        created_at: new Date().toISOString(),
+      };
+      savedAdmission = {
+        id: 'adm-' + Date.now(),
+        admission_number: generatedAdmNo,
+        patient_id: savedPatient.id,
+        patient: savedPatient,
+        bed_id: data.bedId,
+        ward_id: data.wardId,
+        admitting_doctor: data.admittingDoctor,
+        provisional_diagnosis: data.provisionalDiagnosis,
+        admission_date: new Date().toISOString(),
+        status: 'admitted',
+        notes: data.notes,
+        created_at: new Date().toISOString(),
+      };
     }
 
     // Update local caches
-    const patients = await this.getPatients();
-    setLocal(STORAGE_KEYS.PATIENTS, [newPatient, ...patients]);
+    const patients = getLocal<Patient[]>(STORAGE_KEYS.PATIENTS, []);
+    setLocal(STORAGE_KEYS.PATIENTS, [savedPatient, ...patients.filter((p) => p.id !== savedPatient.id)]);
 
-    const admissions = await this.getAdmissions();
-    setLocal(STORAGE_KEYS.ADMISSIONS, [newAdmission, ...admissions]);
+    const admissions = getLocal<Admission[]>(STORAGE_KEYS.ADMISSIONS, []);
+    setLocal(STORAGE_KEYS.ADMISSIONS, [savedAdmission, ...admissions.filter((a) => a.id !== savedAdmission.id)]);
 
-    await this.updateBedStatus(data.bedId, 'occupied');
+    const beds = await this.getBeds();
+    const updatedBeds = beds.map((b) => (b.id === data.bedId ? { ...b, status: 'occupied' as const } : b));
+    setLocal(STORAGE_KEYS.BEDS, updatedBeds);
 
-    return { patient: newPatient, admission: newAdmission };
+    return { patient: savedPatient, admission: savedAdmission };
   },
 
   // --- STEP 3: SHIFT BED ---
@@ -187,22 +245,57 @@ export const DataService = {
     reason: string;
     transferredBy: string;
   }): Promise<BedTransfer> {
-    const transferRecord: BedTransfer = {
-      id: 'trf-' + Date.now(),
-      admission_id: data.admissionId,
-      from_bed_id: data.fromBedId,
-      to_bed_id: data.toBedId,
-      reason: data.reason,
-      transferred_by: data.transferredBy || 'Duty Staff',
-      transfer_date: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-    };
+    let savedTransfer: BedTransfer;
 
     if (isSupabaseConfigured && supabase) {
-      await supabase.from('bed_transfers').insert([transferRecord]);
-      await supabase.from('admissions').update({ bed_id: data.toBedId }).eq('id', data.admissionId);
-      await supabase.from('beds').update({ status: 'cleaning' }).eq('id', data.fromBedId);
-      await supabase.from('beds').update({ status: 'occupied' }).eq('id', data.toBedId);
+      const transferPayload = {
+        admission_id: data.admissionId,
+        from_bed_id: data.fromBedId,
+        to_bed_id: data.toBedId,
+        reason: data.reason,
+        transferred_by: data.transferredBy || 'Duty Staff',
+        transfer_date: new Date().toISOString(),
+      };
+
+      const { data: tData, error: tErr } = await supabase
+        .from('bed_transfers')
+        .insert([transferPayload])
+        .select()
+        .single();
+
+      if (tErr || !tData) {
+        console.error('Supabase bed transfer error:', tErr);
+        throw new Error(tErr?.message || 'Failed to record bed transfer.');
+      }
+
+      savedTransfer = tData as BedTransfer;
+
+      // Update admission with new bed
+      await supabase
+        .from('admissions')
+        .update({ bed_id: data.toBedId, updated_at: new Date().toISOString() })
+        .eq('id', data.admissionId);
+
+      // Old bed -> cleaning, new bed -> occupied
+      await supabase
+        .from('beds')
+        .update({ status: 'cleaning', updated_at: new Date().toISOString() })
+        .eq('id', data.fromBedId);
+      await supabase
+        .from('beds')
+        .update({ status: 'occupied', updated_at: new Date().toISOString() })
+        .eq('id', data.toBedId);
+    } else {
+      savedTransfer = {
+        id: 'trf-' + Date.now(),
+        admission_id: data.admissionId,
+        from_bed_id: data.fromBedId,
+        to_bed_id: data.toBedId,
+        reason: data.reason,
+        transferred_by: data.transferredBy || 'Duty Staff',
+        transfer_date: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      };
     }
 
     // Update local cache
@@ -213,13 +306,17 @@ export const DataService = {
     setLocal(STORAGE_KEYS.ADMISSIONS, updatedAdmissions);
 
     const transfers = getLocal<BedTransfer[]>(STORAGE_KEYS.TRANSFERS, []);
-    setLocal(STORAGE_KEYS.TRANSFERS, [transferRecord, ...transfers]);
+    setLocal(STORAGE_KEYS.TRANSFERS, [savedTransfer, ...transfers]);
 
-    // Old bed goes to cleaning / vacant, new bed occupied
-    await this.updateBedStatus(data.fromBedId, 'cleaning');
-    await this.updateBedStatus(data.toBedId, 'occupied');
+    const beds = await this.getBeds();
+    const updatedBeds = beds.map((b) => {
+      if (b.id === data.fromBedId) return { ...b, status: 'cleaning' as const };
+      if (b.id === data.toBedId) return { ...b, status: 'occupied' as const };
+      return b;
+    });
+    setLocal(STORAGE_KEYS.BEDS, updatedBeds);
 
-    return transferRecord;
+    return savedTransfer;
   },
 
   // --- STEP 4: DISCHARGE & REFERRAL ---
@@ -232,24 +329,55 @@ export const DataService = {
     doctorAdvice?: string;
     followUpDate?: string;
   }): Promise<DischargeRecord> {
-    const dischargeRecord: DischargeRecord = {
-      id: 'dis-' + Date.now(),
-      admission_id: data.admissionId,
-      discharge_type: data.dischargeType,
-      destination_hospital: data.destinationHospital,
-      discharge_summary: data.dischargeSummary,
-      doctor_advice: data.doctorAdvice,
-      follow_up_date: data.followUpDate,
-      discharged_at: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-    };
-
-    const newStatus = data.dischargeType === 'referred' ? 'referred' : data.dischargeType === 'lama' ? 'lama' : 'discharged';
+    const newStatus =
+      data.dischargeType === 'referred' ? 'referred' : data.dischargeType === 'lama' ? 'lama' : 'discharged';
+    let savedDischarge: DischargeRecord;
 
     if (isSupabaseConfigured && supabase) {
-      await supabase.from('discharges').insert([dischargeRecord]);
-      await supabase.from('admissions').update({ status: newStatus }).eq('id', data.admissionId);
-      await supabase.from('beds').update({ status: 'cleaning' }).eq('id', data.bedId);
+      const dischargePayload = {
+        admission_id: data.admissionId,
+        discharge_type: data.dischargeType,
+        destination_hospital: data.destinationHospital || null,
+        discharge_summary: data.dischargeSummary,
+        doctor_advice: data.doctorAdvice || null,
+        follow_up_date: data.followUpDate || null,
+        discharged_at: new Date().toISOString(),
+      };
+
+      const { data: dData, error: dErr } = await supabase
+        .from('discharges')
+        .insert([dischargePayload])
+        .select()
+        .single();
+
+      if (dErr || !dData) {
+        console.error('Supabase discharge error:', dErr);
+        throw new Error(dErr?.message || 'Failed to record discharge.');
+      }
+
+      savedDischarge = dData as DischargeRecord;
+
+      await supabase
+        .from('admissions')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', data.admissionId);
+
+      await supabase
+        .from('beds')
+        .update({ status: 'cleaning', updated_at: new Date().toISOString() })
+        .eq('id', data.bedId);
+    } else {
+      savedDischarge = {
+        id: 'dis-' + Date.now(),
+        admission_id: data.admissionId,
+        discharge_type: data.dischargeType,
+        destination_hospital: data.destinationHospital,
+        discharge_summary: data.dischargeSummary,
+        doctor_advice: data.doctorAdvice,
+        follow_up_date: data.followUpDate,
+        discharged_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      };
     }
 
     const admissions = await this.getAdmissions();
@@ -259,12 +387,13 @@ export const DataService = {
     setLocal(STORAGE_KEYS.ADMISSIONS, updatedAdmissions);
 
     const discharges = getLocal<DischargeRecord[]>(STORAGE_KEYS.DISCHARGES, []);
-    setLocal(STORAGE_KEYS.DISCHARGES, [dischargeRecord, ...discharges]);
+    setLocal(STORAGE_KEYS.DISCHARGES, [savedDischarge, ...discharges]);
 
-    // Bed freed -> auto cleaning
-    await this.updateBedStatus(data.bedId, 'cleaning');
+    const beds = await this.getBeds();
+    const updatedBeds = beds.map((b) => (b.id === data.bedId ? { ...b, status: 'cleaning' as const } : b));
+    setLocal(STORAGE_KEYS.BEDS, updatedBeds);
 
-    return dischargeRecord;
+    return savedDischarge;
   },
 
   async getAdmissions(): Promise<Admission[]> {

@@ -157,8 +157,8 @@ export const WardBedMatrix: React.FC<WardBedMatrixProps> = ({
                   const admission = getActiveAdmission(bed.id);
 
                   // 1. OCCUPIED BED
-                  if (bed.status === 'occupied' && admission) {
-                    const patient = admission.patient;
+                  if (bed.status === 'occupied') {
+                    const patient = admission?.patient;
                     return (
                       <div
                         key={bed.id}
@@ -180,7 +180,7 @@ export const WardBedMatrix: React.FC<WardBedMatrixProps> = ({
                           <div>
                             <div className="flex items-center gap-1.5">
                               <p className="text-xs font-bold text-slate-900 truncate">
-                                {patient?.full_name || 'Patient'}
+                                {patient?.full_name || 'Inpatient Under Care'}
                               </p>
                               {patient?.gender && (
                                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-white text-slate-600 border border-slate-200">
@@ -189,18 +189,18 @@ export const WardBedMatrix: React.FC<WardBedMatrixProps> = ({
                               )}
                             </div>
                             <p className="text-[10px] font-mono text-slate-500 mt-0.5">
-                              {admission.admission_number}
+                              {admission?.admission_number || 'IPD-ACTIVE'}
                             </p>
                           </div>
 
                           {/* Diagnosis & Doctor */}
                           <div className="text-[11px] text-slate-600 bg-white/70 p-2 rounded-xl space-y-1">
-                            <p className="line-clamp-1 font-medium text-slate-800" title={admission.provisional_diagnosis}>
-                              🩺 {admission.provisional_diagnosis}
+                            <p className="line-clamp-1 font-medium text-slate-800" title={admission?.provisional_diagnosis || 'Active Inpatient'}>
+                              🩺 {admission?.provisional_diagnosis || 'Clinical Care / Monitoring'}
                             </p>
                             <p className="text-[10px] text-slate-500 flex items-center gap-1">
                               <Stethoscope className="w-3 h-3 text-slate-400" />
-                              {admission.admitting_doctor}
+                              {admission?.admitting_doctor || 'Attending Physician'}
                             </p>
                           </div>
                         </div>
@@ -208,8 +208,9 @@ export const WardBedMatrix: React.FC<WardBedMatrixProps> = ({
                         {/* Action Footer (Step 3: Shift, Step 4: Discharge) */}
                         <div className="mt-3 pt-2.5 border-t border-rose-200/60 flex items-center gap-1.5">
                           <button
-                            onClick={() => onShiftBed(admission)}
-                            className="flex-1 py-1.5 bg-white hover:bg-amber-50 text-amber-700 rounded-xl text-[11px] font-bold border border-amber-200 shadow-xs transition flex items-center justify-center gap-1"
+                            onClick={() => admission && onShiftBed(admission)}
+                            disabled={!admission}
+                            className="flex-1 py-1.5 bg-white hover:bg-amber-50 disabled:opacity-50 text-amber-700 rounded-xl text-[11px] font-bold border border-amber-200 shadow-xs transition flex items-center justify-center gap-1"
                             title="Shift to another bed in this or another ward"
                           >
                             <ArrowRightLeft className="w-3 h-3 text-amber-500" />
@@ -217,8 +218,9 @@ export const WardBedMatrix: React.FC<WardBedMatrixProps> = ({
                           </button>
 
                           <button
-                            onClick={() => onDischargeBed(admission)}
-                            className="flex-1 py-1.5 bg-white hover:bg-emerald-50 text-emerald-700 rounded-xl text-[11px] font-bold border border-emerald-200 shadow-xs transition flex items-center justify-center gap-1"
+                            onClick={() => admission && onDischargeBed(admission)}
+                            disabled={!admission}
+                            className="flex-1 py-1.5 bg-white hover:bg-emerald-50 disabled:opacity-50 text-emerald-700 rounded-xl text-[11px] font-bold border border-emerald-200 shadow-xs transition flex items-center justify-center gap-1"
                             title="Discharge or refer patient"
                           >
                             <LogOut className="w-3 h-3 text-emerald-500" />

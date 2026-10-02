@@ -38,7 +38,7 @@ export const MobileLiveBedScroller: React.FC<MobileLiveBedScrollerProps> = ({
       <div className="flex gap-2.5 overflow-x-auto pb-2 pt-0.5 scrollbar-none snap-x snap-mandatory">
         {beds.slice(0, 10).map((bed) => {
           const admission = admissions.find((a) => a.bed_id === bed.id && a.status === 'admitted');
-          const isOccupied = bed.status === 'occupied' && admission;
+          const isOccupied = bed.status === 'occupied';
           const isCleaning = bed.status === 'cleaning';
 
           return (
@@ -79,7 +79,7 @@ export const MobileLiveBedScroller: React.FC<MobileLiveBedScrollerProps> = ({
                 {isOccupied ? (
                   <>
                     <p className="text-xs font-bold text-slate-900 truncate">
-                      {admission.patient?.full_name}
+                      {admission?.patient?.full_name || 'Inpatient Under Care'}
                     </p>
                     <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
                       <span className="inline-flex items-center gap-0.5 font-semibold text-emerald-600">
