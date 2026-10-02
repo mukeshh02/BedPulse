@@ -19,27 +19,32 @@ import {
   Lock,
 } from 'lucide-react';
 
+import { AuthService, ActiveStaff, StaffRole } from '@/lib/auth';
+
 export default function LoginPage() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<'Doctor' | 'Nurse' | 'Admin'>('Doctor');
+  const [selectedRole, setSelectedRole] = useState<StaffRole>('Doctor');
   const [staffId, setStaffId] = useState('alexander.m@bedpulse.health');
   const [password, setPassword] = useState('WardAlpha2024!');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedSector, setSelectedSector] = useState('ICU / Critical Care');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRoleChange = (role: 'Doctor' | 'Nurse' | 'Admin') => {
+  const handleRoleChange = (role: StaffRole) => {
     setSelectedRole(role);
     if (role === 'Doctor') {
       setStaffId('alexander.m@bedpulse.health');
+      setSelectedSector('ICU / Critical Care');
     } else if (role === 'Nurse') {
       setStaffId('priya.nurse@bedpulse.health');
+      setSelectedSector('General Medical Ward');
     } else {
       setStaffId('admin@bedpulse.health');
+      setSelectedSector('Hospital Operations');
     }
   };
 
-  const handleDemoSelect = (role: 'Doctor' | 'Nurse' | 'Admin', email: string, sector: string) => {
+  const handleDemoSelect = (role: StaffRole, email: string, sector: string) => {
     setSelectedRole(role);
     setStaffId(email);
     setSelectedSector(sector);
@@ -49,10 +54,33 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const staff: ActiveStaff = {
+      name:
+        selectedRole === 'Doctor'
+          ? 'Dr. Alexander Wright, MD'
+          : selectedRole === 'Nurse'
+          ? 'Sister Priya Sharma'
+          : 'Chief Administrator',
+      title:
+        selectedRole === 'Doctor'
+          ? 'Chief of Inpatient Care & Intensive Care Unit'
+          : selectedRole === 'Nurse'
+          ? 'Head Staff Nurse & Nursing Lead'
+          : 'Hospital Operations & Ward Director',
+      role: selectedRole,
+      sector: selectedSector,
+      email: staffId,
+      avatar: selectedRole === 'Doctor' ? '/assets/doctor.png' : '',
+      loginTime: new Date().toISOString(),
+    };
+
+    AuthService.login(staff);
+
     setTimeout(() => {
       setIsSubmitting(false);
       router.push('/');
-    }, 600);
+    }, 400);
   };
 
   const sectors = [

@@ -24,11 +24,14 @@ import {
   Trash2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { AuthService, ActiveStaff } from '@/lib/auth';
+import { ArrowRight } from 'lucide-react';
 
 export default function WardMasterPage() {
   const [wards, setWards] = useState<Ward[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [loading, setLoading] = useState(true);
+  const [staff, setStaff] = useState<ActiveStaff | null>(null);
 
   const [activeTab, setActiveTab] = useState<'beds' | 'wards' | 'addBed' | 'addWard'>('beds');
   const [selectedWardFilter, setSelectedWardFilter] = useState<string>('all');
@@ -73,6 +76,18 @@ export default function WardMasterPage() {
 
   useEffect(() => {
     loadData();
+    setStaff(AuthService.getCurrentStaff());
+
+    const handleAuthChange = () => {
+      setStaff(AuthService.getCurrentStaff());
+    };
+
+    window.addEventListener('auth_change', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+    return () => {
+      window.removeEventListener('auth_change', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+    };
   }, []);
 
   // Filtered beds
@@ -211,6 +226,36 @@ export default function WardMasterPage() {
             </Link>
           </div>
         </div>
+
+        {/* ROLE PERMISSION NOTICE IF NOT ADMIN */}
+        {staff && staff.role !== 'Admin' && (
+          <div className="bg-purple-50/80 border border-purple-200 p-4 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black shrink-0 text-xs shadow-sm">
+                ADM
+              </div>
+              <div>
+                <h4 className="font-black text-purple-900">
+                  Ward Master Studio is in Administrator Mode
+                </h4>
+                <p className="text-purple-700 text-[11px] mt-0.5">
+                  You are currently logged in as <strong className="text-purple-900">{staff.name}</strong> ({staff.role}). You have full preview access.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const updated = AuthService.switchRole('Admin');
+                setStaff(updated);
+              }}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto shrink-0 shadow-xs"
+            >
+              <span>Switch to Hospital Admin</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* NOTIFICATIONS */}
         {errorMsg && (
