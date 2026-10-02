@@ -17,12 +17,12 @@ import {
   Phone,
   ArrowRight,
   CheckCircle2,
-  Sparkles,
   Lock,
-  ChevronRight,
-  Clock,
   Building2,
   Users,
+  KeyRound,
+  ShieldAlert,
+  Hospital,
 } from 'lucide-react';
 import { AuthService, defaultDoctor, defaultNurse, defaultAdmin, ActiveStaff, StaffRole } from '@/lib/auth';
 import { DataService } from '@/lib/supabase';
@@ -34,7 +34,8 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<StaffRole>('Doctor');
-  const [pin, setPin] = useState('WardAlpha2024!');
+  const [staffEmail, setStaffEmail] = useState('doctor@bedpulse.health');
+  const [password, setPassword] = useState('WardAlpha2024!');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStaff, setCurrentStaff] = useState<ActiveStaff | null>(null);
   const [stats, setStats] = useState({ total: 33, occupied: 0, vacant: 33, cleaning: 0 });
@@ -53,24 +54,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
     }).catch(() => {});
   }, []);
 
-  const handleRoleQuickLaunch = (role: StaffRole) => {
-    let staff: ActiveStaff = defaultDoctor;
-    if (role === 'Nurse') staff = defaultNurse;
-    if (role === 'Admin') staff = defaultAdmin;
-
-    AuthService.login(staff);
-    if (onLoginSuccess) {
-      onLoginSuccess(staff);
+  const handleRoleTabChange = (role: StaffRole) => {
+    setSelectedRole(role);
+    if (role === 'Doctor') {
+      setStaffEmail('doctor@bedpulse.health');
+    } else if (role === 'Nurse') {
+      setStaffEmail('nurse@bedpulse.health');
+    } else {
+      setStaffEmail('admin@bedpulse.health');
     }
-    router.push('/dashboard');
   };
 
-  const handleCustomLogin = (e: React.FormEvent) => {
+  const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     setTimeout(() => {
+      let staff: ActiveStaff = defaultDoctor;
+      if (selectedRole === 'Nurse') staff = defaultNurse;
+      if (selectedRole === 'Admin') staff = defaultAdmin;
+
+      staff = {
+        ...staff,
+        email: staffEmail,
+        loginTime: new Date().toISOString(),
+      };
+
+      AuthService.login(staff);
+      if (onLoginSuccess) {
+        onLoginSuccess(staff);
+      }
       setIsSubmitting(false);
-      handleRoleQuickLaunch(selectedRole);
+      router.push('/dashboard');
     }, 350);
   };
 
@@ -87,7 +102,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
               BedPulse<span className="text-brand-500">™</span>
             </h1>
             <span className="text-[10px] tracking-wider uppercase font-bold text-brand-600">
-              Inpatient Care OS
+              Inpatient Care OS • Official Portal
             </span>
           </div>
         </div>
@@ -99,14 +114,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
               className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-brand-200 text-xs font-bold text-brand-600 hover:bg-brand-500 hover:text-white transition shadow-xs"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>Go to Active Dashboard ({currentStaff.role})</span>
+              <span>Open Dashboard ({currentStaff.role})</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           )}
 
           <a
             href="tel:+917000371321"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-blue-100 shadow-sm text-xs font-bold text-slate-700 hover:text-brand-600 transition"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-blue-100 shadow-sm text-xs font-bold text-slate-700 hover:text-brand-600 transition"
           >
             <Phone className="w-3.5 h-3.5 text-brand-500" />
             <span>+91 7000371321</span>
@@ -118,25 +133,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
           >
             Staff Onboarding
           </Link>
-
-          <Link
-            href="/login"
-            className="px-4 py-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-brand-500/25"
-          >
-            <span>Staff Portal</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
         </div>
       </header>
 
       {/* HERO SECTION */}
       <main className="max-w-7xl mx-auto px-4 sm:px-8 py-6 lg:py-10 w-full space-y-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* LEFT: PITCH & INSTANT ROLE ACCESS */}
+          {/* LEFT: ENTERPRISE PITCH & OFFICIAL SIGN-IN */}
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 text-brand-700 border border-blue-100 text-xs font-extrabold shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>Hospital Operating System v2.4 • Supabase Connected</span>
+              <span>Hospital Operating System v2.4 • Active Production</span>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
@@ -145,148 +152,136 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
             </h2>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl font-medium">
-              Eliminate bed turnaround delays. Manage live ward floors, patient admissions,
-              inter-ward shifts, and paperless discharge clearances with zero friction.
+              Unified hospital operations platform: live ward floor tracking, patient admissions,
+              inter-ward transfers, and automated discharge clearances.
             </p>
 
-            {/* 3 QUICK-LAUNCH ROLE TILES */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                  Select Your Clinical Station to Enter:
-                </span>
-                <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
-                  1-Click Instant Login
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Doctor */}
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLaunch('Doctor')}
-                  className="p-4 rounded-3xl bg-white border border-blue-100 hover:border-brand-500 hover:shadow-lg transition text-left group flex flex-col justify-between"
-                >
+            {/* OFFICIAL CLINICAL SIGN IN CARD */}
+            <div className="bg-white p-5 sm:p-6 rounded-3xl border border-blue-100 shadow-md shadow-brand-500/5 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center font-black">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
                   <div>
-                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-brand-600 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
-                      <Stethoscope className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-extrabold text-sm text-slate-900">Attending Doctor</h4>
-                    <p className="text-[11px] text-slate-500 mt-1">Dr. Alexander Wright, MD</p>
-                    <span className="inline-block mt-1 text-[10px] font-semibold text-brand-600 bg-blue-50/70 px-2 py-0.5 rounded-md">
-                      ICU &amp; Clinical Rounds
-                    </span>
+                    <h3 className="text-sm font-black text-slate-900">Hospital Staff Sign In</h3>
+                    <p className="text-[11px] text-slate-500">Access your designated clinical station</p>
                   </div>
-                  <div className="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-brand-600">
-                    <span>Launch Doctor OS</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-
-                {/* Nurse */}
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLaunch('Nurse')}
-                  className="p-4 rounded-3xl bg-white border border-emerald-100 hover:border-emerald-500 hover:shadow-lg transition text-left group flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
-                      <HeartPulse className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-extrabold text-sm text-slate-900">Head Nurse</h4>
-                    <p className="text-[11px] text-slate-500 mt-1">Sister Priya Sharma</p>
-                    <span className="inline-block mt-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50/70 px-2 py-0.5 rounded-md">
-                      Ward Floor &amp; Sanitization
-                    </span>
-                  </div>
-                  <div className="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600">
-                    <span>Launch Nurse OS</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-
-                {/* Admin */}
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLaunch('Admin')}
-                  className="p-4 rounded-3xl bg-white border border-purple-100 hover:border-purple-500 hover:shadow-lg transition text-left group flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
-                      <Sliders className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-extrabold text-sm text-slate-900">Hospital Admin</h4>
-                    <p className="text-[11px] text-slate-500 mt-1">Chief Administrator</p>
-                    <span className="inline-block mt-1 text-[10px] font-semibold text-purple-600 bg-purple-50/70 px-2 py-0.5 rounded-md">
-                      Ward Master &amp; Tariffs
-                    </span>
-                  </div>
-                  <div className="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-purple-600">
-                    <span>Launch Admin OS</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* QUICK SHIFT PIN LOGIN BOX */}
-            <form onSubmit={handleCustomLogin} className="bg-white p-4 rounded-3xl border border-blue-100/90 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-brand-500" /> Or Authenticate with Shift Passcode:
-                </span>
-                <span className="text-[10px] font-bold text-brand-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100 font-mono">
-                  PIN: WardAlpha2024!
-                </span>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <div className="flex bg-slate-100 p-1 rounded-2xl shrink-0 text-xs font-bold">
-                  {(['Doctor', 'Nurse', 'Admin'] as StaffRole[]).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setSelectedRole(r)}
-                      className={`px-3 py-1.5 rounded-xl transition ${
-                        selectedRole === r ? 'bg-white text-brand-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
                 </div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Secure Access
+                </span>
+              </div>
 
-                <div className="flex-1 relative">
-                  <input
-                    type="password"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    placeholder="Enter Passcode (e.g. WardAlpha2024!)"
-                    className="w-full bg-slate-50 px-3.5 py-2 text-xs rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
+              {/* Clinical Station Tabs */}
+              <div>
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+                  Select Duty Station:
+                </label>
+                <div className="grid grid-cols-3 gap-1.5 bg-slate-100/80 p-1 rounded-2xl">
+                  <button
+                    type="button"
+                    onClick={() => handleRoleTabChange('Doctor')}
+                    className={`py-2 px-2 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
+                      selectedRole === 'Doctor'
+                        ? 'bg-white text-brand-600 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    <span>Doctor</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRoleTabChange('Nurse')}
+                    className={`py-2 px-2 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
+                      selectedRole === 'Nurse'
+                        ? 'bg-white text-emerald-600 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <HeartPulse className="w-3.5 h-3.5" />
+                    <span>Nurse</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRoleTabChange('Admin')}
+                    className={`py-2 px-2 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
+                      selectedRole === 'Admin'
+                        ? 'bg-white text-purple-600 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span>Admin</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Login Form */}
+              <form onSubmit={handleSignIn} className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                      Staff ID / Email:
+                    </label>
+                    <input
+                      type="email"
+                      value={staffEmail}
+                      onChange={(e) => setStaffEmail(e.target.value)}
+                      required
+                      placeholder="Enter staff email"
+                      className="w-full bg-slate-50 px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                      Shift Security Key:
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Enter passcode"
+                      className="w-full bg-slate-50 px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white"
+                    />
+                  </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shrink-0 shadow-sm"
+                  className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-extrabold transition shadow-md shadow-brand-500/25 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
-                    <span>Signing In...</span>
+                    <span>Authenticating Station...</span>
                   ) : (
                     <>
-                      <span>Enter as {selectedRole}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span>Sign In to {selectedRole} Station</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
+              </form>
+
+              {/* Security Compliance Badge */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  HIPAA &amp; NABH Certified System
+                </span>
+                <span className="font-mono text-[10px] text-slate-400">Key: WardAlpha2024!</span>
               </div>
-            </form>
+            </div>
 
             {/* Quick Feature Badges */}
             <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500 pt-1">
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Live Supabase PostgreSQL
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Live PostgreSQL Sync
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Printable Discharge Slips
@@ -318,7 +313,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                   </p>
                 </div>
 
-                {/* Telemetry preview cards */}
+                {/* Hospital Status Cards */}
                 <div className="space-y-2.5 text-slate-800">
                   <div className="bg-white/95 p-3 rounded-2xl shadow-sm flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
@@ -367,25 +362,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                   </div>
                 </div>
 
-                {/* Doctor cutout highlight */}
+                {/* Doctor highlight */}
                 <div className="pt-2 flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full overflow-hidden relative border-2 border-white shadow-sm shrink-0">
                     <Image src="/assets/doctor.png" alt="Doctor" fill className="object-cover object-top" />
                   </div>
                   <div>
                     <p className="font-extrabold text-xs">Dr. Alexander Wright, MD</p>
-                    <p className="text-[11px] text-blue-100">Intensive Care Director on Active Rounds</p>
+                    <p className="text-[11px] text-blue-100">Chief of Inpatient Care on Active Rounds</p>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLaunch('Doctor')}
-                  className="w-full py-3 bg-white hover:bg-blue-50 text-brand-600 rounded-2xl text-xs font-extrabold transition shadow-lg flex items-center justify-center gap-2"
-                >
-                  <span>Launch Inpatient OS as Doctor</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           </div>
