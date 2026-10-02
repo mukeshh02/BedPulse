@@ -235,7 +235,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                 <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5 text-brand-500" /> Or Authenticate with Shift Passcode:
                 </span>
-                <span className="text-[10px] text-slate-400">Hospital Clinical Passcode</span>
+                <span className="text-[10px] font-bold text-brand-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100 font-mono">
+                  PIN: WardAlpha2024!
+                </span>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -259,7 +261,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                     type="password"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="Enter Shift Passcode"
+                    placeholder="Enter Passcode (e.g. WardAlpha2024!)"
                     className="w-full bg-slate-50 px-3.5 py-2 text-xs rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
