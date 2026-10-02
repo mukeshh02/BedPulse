@@ -34,8 +34,9 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<StaffRole>('Doctor');
-  const [staffEmail, setStaffEmail] = useState('doctor@bedpulse.health');
-  const [password, setPassword] = useState('WardAlpha2024!');
+  const [staffEmail, setStaffEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStaff, setCurrentStaff] = useState<ActiveStaff | null>(null);
   const [stats, setStats] = useState({ total: 33, occupied: 0, vacant: 33, cleaning: 0 });
@@ -56,27 +57,54 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
 
   const handleRoleTabChange = (role: StaffRole) => {
     setSelectedRole(role);
-    if (role === 'Doctor') {
-      setStaffEmail('doctor@bedpulse.health');
-    } else if (role === 'Nurse') {
-      setStaffEmail('nurse@bedpulse.health');
-    } else {
-      setStaffEmail('admin@bedpulse.health');
-    }
+    setErrorMsg('');
   };
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
+
+    if (!staffEmail.trim()) {
+      setErrorMsg('Please enter your Hospital Staff ID or Email.');
+      return;
+    }
+
+    if (!password.trim()) {
+      setErrorMsg('Please enter your Shift Security Key / Password.');
+      return;
+    }
+
+    if (password.trim() !== 'WardAlpha2024!' && password.trim().length < 4) {
+      setErrorMsg('Invalid password. Minimum 4 characters required.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     setTimeout(() => {
+      let displayName =
+        selectedRole === 'Doctor'
+          ? 'Dr. Alexander Wright, MD'
+          : selectedRole === 'Nurse'
+          ? 'Sister Priya Sharma'
+          : 'Chief Administrator';
+
+      const emailPrefix = staffEmail.split('@')[0].replace(/[._-]/g, ' ');
+      if (emailPrefix && !['doctor', 'nurse', 'admin', 'alexander.m', 'priya.nurse'].includes(staffEmail.toLowerCase())) {
+        displayName =
+          selectedRole === 'Doctor'
+            ? `Dr. ${emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)}`
+            : emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+      }
+
       let staff: ActiveStaff = defaultDoctor;
       if (selectedRole === 'Nurse') staff = defaultNurse;
       if (selectedRole === 'Admin') staff = defaultAdmin;
 
       staff = {
         ...staff,
-        email: staffEmail,
+        name: displayName,
+        email: staffEmail.trim(),
         loginTime: new Date().toISOString(),
       };
 
@@ -220,6 +248,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                 </div>
               </div>
 
+              {/* Error Alert */}
+              {errorMsg && (
+                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-rose-500" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
               {/* Login Form */}
               <form onSubmit={handleSignIn} className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -228,12 +264,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                       Staff ID / Email:
                     </label>
                     <input
-                      type="email"
+                      type="text"
                       value={staffEmail}
                       onChange={(e) => setStaffEmail(e.target.value)}
                       required
-                      placeholder="Enter staff email"
-                      className="w-full bg-slate-50 px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white"
+                      placeholder={
+                        selectedRole === 'Doctor'
+                          ? 'Enter doctor email (e.g. doctor@hospital.com)'
+                          : selectedRole === 'Nurse'
+                          ? 'Enter nurse email (e.g. nurse@hospital.com)'
+                          : 'Enter admin email (e.g. admin@hospital.com)'
+                      }
+                      className="w-full bg-slate-50 px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white placeholder:text-slate-400 placeholder:font-normal"
                     />
                   </div>
 
@@ -246,8 +288,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      placeholder="Enter passcode"
-                      className="w-full bg-slate-50 px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white"
+                      placeholder="Enter security password"
+                      className="w-full bg-slate-50 px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white placeholder:text-slate-400 placeholder:font-normal"
                     />
                   </div>
                 </div>
@@ -274,7 +316,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   HIPAA &amp; NABH Certified System
                 </span>
-                <span className="font-mono text-[10px] text-slate-400">Key: WardAlpha2024!</span>
+                <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                  <Lock className="w-3 h-3 text-emerald-500" /> 256-Bit Encrypted
+                </span>
               </div>
             </div>
 

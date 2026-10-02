@@ -5,57 +5,76 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
-  Key,
-  BadgeAlert,
   Eye,
   EyeOff,
   HeartPulse,
-  Building2,
-  CheckCircle2,
-  UserPlus,
-  ArrowRight,
-  Phone,
-  Sparkles,
   Lock,
+  ArrowRight,
+  AlertCircle,
+  Stethoscope,
 } from 'lucide-react';
-
 import { AuthService, ActiveStaff, StaffRole } from '@/lib/auth';
 
 export default function LoginPage() {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<StaffRole>('Doctor');
-  const [staffId, setStaffId] = useState('alexander.m@bedpulse.health');
-  const [password, setPassword] = useState('WardAlpha2024!');
+  const [staffId, setStaffId] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedSector, setSelectedSector] = useState('ICU / Critical Care');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleRoleChange = (role: StaffRole) => {
     setSelectedRole(role);
+    setErrorMsg('');
     if (role === 'Doctor') {
-      setStaffId('alexander.m@bedpulse.health');
       setSelectedSector('ICU / Critical Care');
     } else if (role === 'Nurse') {
-      setStaffId('priya.nurse@bedpulse.health');
       setSelectedSector('General Medical Ward');
     } else {
-      setStaffId('admin@bedpulse.health');
       setSelectedSector('Hospital Operations');
     }
   };
 
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
+
+    if (!staffId.trim()) {
+      setErrorMsg('Please enter your Hospital Staff ID or Clinical Email.');
+      return;
+    }
+
+    if (!password.trim()) {
+      setErrorMsg('Please enter your Access Password.');
+      return;
+    }
+
+    if (password.trim() !== 'WardAlpha2024!' && password.trim().length < 4) {
+      setErrorMsg('Invalid password. Minimum 4 characters required.');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const staff: ActiveStaff = {
-      name:
+    let displayName =
+      selectedRole === 'Doctor'
+        ? 'Dr. Alexander Wright, MD'
+        : selectedRole === 'Nurse'
+        ? 'Sister Priya Sharma'
+        : 'Chief Administrator';
+
+    const emailPrefix = staffId.split('@')[0].replace(/[._-]/g, ' ');
+    if (emailPrefix && !['doctor', 'nurse', 'admin', 'alexander.m', 'priya.nurse'].includes(staffId.toLowerCase())) {
+      displayName =
         selectedRole === 'Doctor'
-          ? 'Dr. Alexander Wright, MD'
-          : selectedRole === 'Nurse'
-          ? 'Sister Priya Sharma'
-          : 'Chief Administrator',
+          ? `Dr. ${emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)}`
+          : emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    }
+
+    const staff: ActiveStaff = {
+      name: displayName,
       title:
         selectedRole === 'Doctor'
           ? 'Chief of Inpatient Care & Intensive Care Unit'
@@ -64,7 +83,7 @@ export default function LoginPage() {
           : 'Hospital Operations & Ward Director',
       role: selectedRole,
       sector: selectedSector,
-      email: staffId,
+      email: staffId.trim(),
       avatar: selectedRole === 'Doctor' ? '/assets/doctor.png' : '',
       loginTime: new Date().toISOString(),
     };
@@ -74,7 +93,7 @@ export default function LoginPage() {
     setTimeout(() => {
       setIsSubmitting(false);
       router.push('/dashboard');
-    }, 400);
+    }, 350);
   };
 
   const sectors = [
@@ -96,7 +115,7 @@ export default function LoginPage() {
         <div className="flex items-center justify-center mb-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-brand-600 border border-blue-100/80 text-[10px] font-bold uppercase tracking-wider">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>St. Jude Care OS v2.4 • Active</span>
+            <span>Hospital Care OS v2.4 • Active</span>
           </div>
         </div>
 
@@ -117,10 +136,10 @@ export default function LoginPage() {
         <div className="flex items-center justify-between bg-slate-50 px-3 py-1.5 rounded-2xl mb-4 text-[11px] border border-slate-100">
           <div className="flex items-center gap-1.5 text-slate-700 font-semibold">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>HIPAA &amp; HL7 Audited Session</span>
+            <span>HIPAA &amp; NABH Certified Session</span>
           </div>
           <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full shadow-2xs border border-slate-200">
-            Floor 4 Active
+            Encrypted
           </span>
         </div>
 
@@ -147,6 +166,14 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Error notification */}
+        {errorMsg && (
+          <div className="mb-3.5 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
         {/* Sign In Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           <div>
@@ -158,7 +185,14 @@ export default function LoginPage() {
               required
               value={staffId}
               onChange={(e) => setStaffId(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-800"
+              placeholder={
+                selectedRole === 'Doctor'
+                  ? 'Enter doctor email (e.g. doctor@hospital.com)'
+                  : selectedRole === 'Nurse'
+                  ? 'Enter nurse email (e.g. nurse@hospital.com)'
+                  : 'Enter admin email (e.g. admin@hospital.com)'
+              }
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-800 placeholder:text-slate-400 placeholder:font-normal"
             />
           </div>
 
@@ -177,7 +211,8 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono text-slate-800 pr-10"
+                placeholder="Enter your security password"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono text-slate-800 pr-10 placeholder:text-slate-400 placeholder:font-sans"
               />
               <button
                 type="button"
@@ -212,8 +247,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          
-
           <button
             type="submit"
             disabled={isSubmitting}
@@ -236,7 +269,7 @@ export default function LoginPage() {
             Register New Staff
           </Link>
           <Link href="/" className="text-slate-400 hover:text-slate-600">
-            Back to Dashboard
+            Back to Home
           </Link>
         </div>
       </div>
