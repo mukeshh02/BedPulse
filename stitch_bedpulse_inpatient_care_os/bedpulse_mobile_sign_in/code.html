@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-fixed-dim": "#acc7ff", "surface-container-lowest": "#ffffff", "primary": "#0056c4", "surface-container-highest": "#d8e3fb", "on-error-container": "#93000a", "secondary": "#0059b8", "surface-bright": "#f9f9ff", "tertiary-container": "#00855b", "on-tertiary-fixed-variant": "#005236", "on-secondary-container": "#fefcff", "primary-fixed": "#d9e2ff", "surface-dim": "#cfdaf2", "error": "#ba1a1a", "outline-variant": "#c2c6d7", "inverse-primary": "#afc6ff", "surface-tint": "#0059c8", "tertiary-fixed-dim": "#4edea3", "on-surface": "#111c2d", "surface": "#f9f9ff", "inverse-on-surface": "#ecf1ff", "on-primary-fixed-variant": "#00429a", "secondary-fixed": "#d7e2ff", "inverse-surface": "#263143", "on-error": "#ffffff", "on-secondary-fixed": "#001a40", "surface-variant": "#d8e3fb", "on-primary-container": "#fefcff", "surface-container-high": "#dee8ff", "error-container": "#ffdad6", "primary-container": "#006df5", "secondary-container": "#0071e7", "surface-container-low": "#f0f3ff", "on-background": "#111c2d", "on-secondary-fixed-variant": "#004590", "on-primary-fixed": "#001944", "on-tertiary": "#ffffff", "on-tertiary-container": "#f5fff6", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-surface-variant": "#424755", "tertiary-fixed": "#6ffbbe", "tertiary": "#006947", "background": "#f9f9ff", "surface-container": "#e7eeff", "primary-fixed-dim": "#afc6ff", "on-tertiary-fixed": "#002113", "outline": "#727786" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "gutter": "1rem", "space-xl": "1.5rem", "space-md": "0.75rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "margin": "1.25rem" }, fontFamily: { "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-md": ["Inter"], "title-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "title-md": ["Plus Jakarta Sans"], "metric-display": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-lg": ["Inter"], "body-lg": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"] }, fontSize: { "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }], "body-md": ["13px", { lineHeight: "18px", fontWeight: "400" }], "label-md": ["11px", { lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "600" }], "title-sm": ["14px", { lineHeight: "20px", fontWeight: "600" }], "headline-lg": ["22px", { lineHeight: "28px", letterSpacing: "-0.015em", fontWeight: "700" }], "label-sm": ["10px", { lineHeight: "12px", letterSpacing: "0.03em", fontWeight: "600" }], "title-md": ["16px", { lineHeight: "22px", letterSpacing: "-0.005em", fontWeight: "600" }], "metric-display": ["32px", { lineHeight: "36px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-md": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600" }], "label-lg": ["13px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600" }], "body-lg": ["15px", { lineHeight: "22px", fontWeight: "400" }], "headline-xl": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "700" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface antialiased pt-safe pb-safe flex flex-col min-h-screen"><main class="flex flex-col relative w-full bg-surface min-h-screen"><div class="flex flex-col w-full px-margin pb-space-xl">
+<!-- Ambient Graphic & Delight Accents -->
+<div class="relative w-full pt-space-md pb-space-lg flex flex-col items-center text-center">
+<!-- Soft Glow Orb -->
+<div class="absolute -top-10 w-48 h-48 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+<!-- Active Ward Status Pill -->
+<div class="inline-flex items-center gap-space-xs px-3 py-1 rounded-full bg-surface-container-high text-primary mb-space-md shadow-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">St. Jude Medical Unit • Care OS v2.4</span>
+</div>
+<!-- BedPulse Brand Icon & Heartbeat Rhythm Mark -->
+<div class="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-surface-container-lowest shadow-md mb-space-sm">
+<div class="absolute inset-0 bg-primary/5 rounded-2xl animate-ping opacity-30"></div>
+<div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-3xl font-bold" style="font-variation-settings: 'FILL' 1;">vital_signs</span>
+</div>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-extrabold tracking-tight">
+      Welcome Back to BedPulse™
+    </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] mt-1">
+      Secure Inpatient Management &amp; Shift OS for High-Precision Care
+    </p>
+</div>
+<!-- Main Floating Authentication Surface -->
+<div class="w-full bg-surface-container-lowest rounded-3xl p-space-lg shadow-xl relative overflow-hidden">
+<!-- Active Shift Roster Micro-Bar -->
+<div class="flex items-center justify-between bg-surface-container-low px-space-md py-2 rounded-2xl mb-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-base" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-md text-label-md text-on-surface">HIPAA &amp; HL7 Audited Session</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded-full shadow-sm">Floor 4 Active</span>
+</div>
+<!-- Role Selector Segmented Control -->
+<div class="mb-space-lg">
+<label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-space-xs">Select Operational Role</label>
+<div class="grid grid-cols-3 gap-1 bg-surface-container p-1 rounded-2xl" id="role-selector">
+<button class="role-btn active-role py-2 px-1 text-center rounded-xl font-label-md text-label-md transition-all duration-200 bg-surface-container-lowest text-primary shadow-sm" onclick="selectRole(this, 'Doctor / Consultant')" type="button">
+          Doctor
+        </button>
+<button class="role-btn py-2 px-1 text-center rounded-xl font-label-md text-label-md transition-all duration-200 text-on-surface-variant" onclick="selectRole(this, 'Nursing Staff')" type="button">
+          Nurse
+        </button>
+<button class="role-btn py-2 px-1 text-center rounded-xl font-label-md text-label-md transition-all duration-200 text-on-surface-variant" onclick="selectRole(this, 'Ward Admin')" type="button">
+          Admin
+        </button>
+</div>
+</div>
+<!-- Clinical Credentials Form -->
+<form class="space-y-space-md" onsubmit="handleSignIn(event)">
+<!-- Staff ID / Email Field -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface font-semibold mb-1" for="staff-id">
+          Hospital Staff ID / Clinical Email
+        </label>
+<div class="relative flex items-center">
+<div class="absolute left-3.5 flex items-center pointer-events-none text-primary">
+<span class="material-symbols-outlined text-xl">badge</span>
+</div>
+<input class="w-full pl-11 pr-4 py-3 bg-surface-container-low focus:bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded-2xl outline-none transition-all placeholder:text-outline" id="staff-id" placeholder="e.g. alexander.m@bedpulse.health" required="" type="text" value="alexander.m@bedpulse.health"/>
+</div>
+</div>
+<!-- Password / Hospital PIN Field -->
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="block font-label-md text-label-md text-on-surface font-semibold" for="clinical-pin">
+            Shift PIN or Access Password
+          </label>
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs">shield_lock</span> 256-bit Encrypted
+          </span>
+</div>
+<div class="relative flex items-center">
+<div class="absolute left-3.5 flex items-center pointer-events-none text-primary">
+<span class="material-symbols-outlined text-xl">key</span>
+</div>
+<input class="w-full pl-11 pr-11 py-3 bg-surface-container-low focus:bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded-2xl outline-none transition-all placeholder:text-outline" id="clinical-pin" placeholder="Enter secure shift credential" required="" type="password" value="WardAlpha2024!"/>
+<button aria-label="Toggle password visibility" class="absolute right-3 p-1.5 rounded-full text-on-surface-variant hover:text-on-surface transition-colors" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined text-xl" id="eye-icon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Quick Department Selector Chips -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Assign Immediate Ward Sector</label>
+<div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none" id="dept-chips">
+<button class="dept-chip flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all" onclick="selectDept(this)" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-container-lowest"></span>
+            ICU / Critical Care
+          </button>
+<button class="dept-chip flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all" onclick="selectDept(this)" type="button">
+            General Ward
+          </button>
+<button class="dept-chip flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all" onclick="selectDept(this)" type="button">
+            Pediatrics
+          </button>
+<button class="dept-chip flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all" onclick="selectDept(this)" type="button">
+            Emergency
+          </button>
+</div>
+</div>
+<!-- Remember Shift Session & Password Reset -->
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="remember-me" type="checkbox"/>
+<div class="w-5 h-5 rounded-lg bg-surface-container peer-checked:bg-primary flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-on-primary text-sm font-bold opacity-0 peer-checked:opacity-100">check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Stay signed for 12h shift</span>
+</label>
+<button class="font-label-md text-label-md text-primary font-semibold hover:underline" onclick="handleForgotModal()" type="button">
+          Forgot PIN?
+        </button>
+</div>
+<!-- Primary Action CTA -->
+<div class="pt-space-xs">
+<button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-title-sm text-title-sm font-bold rounded-full shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" id="submit-btn" type="submit">
+<span>Sign In to Ward OS</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Biometric Fallback Option -->
+<div class="mt-space-md pt-space-md flex flex-col items-center">
+<div class="w-full flex items-center justify-center gap-3 mb-space-md">
+<div class="h-0.5 w-12 bg-surface-container-high rounded-full"></div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Or Authenticate With</span>
+<div class="h-0.5 w-12 bg-surface-container-high rounded-full"></div>
+</div>
+<button class="w-full py-2.5 px-4 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2.5 transition-all shadow-sm active:scale-[0.98]" onclick="triggerBiometrics()" type="button">
+<div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+</div>
+<span>Quick FaceID / Biometric Login</span>
+<span class="material-symbols-outlined text-primary text-sm">lock_open</span>
+</button>
+</div>
+</div>
+<!-- Medical Staff Registration / Onboarding Link -->
+<div class="text-center mt-space-lg mb-space-md">
+<p class="font-body-md text-body-md text-on-surface-variant">
+      New Medical Staff? 
+      <button class="font-title-sm text-title-sm text-primary font-bold hover:underline ml-1" onclick="handleRegistrationPrompt()" type="button">
+        Register Staff Account
+      </button>
+</p>
+</div>
+<!-- Compliance & Support Footer Banner -->
+<div class="mt-auto pt-space-md pb-space-xs text-center flex flex-col items-center gap-1.5">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low">
+<span class="material-symbols-outlined text-xs text-tertiary">lock</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">BedPulse™ Inpatient Security Matrix</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">
+      Developed by <span class="font-bold text-on-surface-variant">WebVission</span> • 24/7 Clinical Desk: 
+      <a class="text-primary font-semibold hover:underline" href="tel:+917000371321">+91 7000371321</a>
+</p>
+</div>
+</div>
+<script>
+  function selectRole(button, roleName) {
+    const parent = document.getElementById('role-selector');
+    const buttons = parent.querySelectorAll('.role-btn');
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'active-role');
+      btn.classList.add('text-on-surface-variant');
+    });
+    button.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'active-role');
+    button.classList.remove('text-on-surface-variant');
+  }
+
+  function selectDept(button) {
+    const parent = document.getElementById('dept-chips');
+    const chips = parent.querySelectorAll('.dept-chip');
+    chips.forEach(chip => {
+      chip.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+      chip.classList.add('bg-surface-container', 'text-on-surface-variant');
+      const dot = chip.querySelector('span');
+      if (dot) dot.remove();
+    });
+    button.classList.remove('bg-surface-container', 'text-on-surface-variant');
+    button.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+    const dot = document.createElement('span');
+    dot.className = "w-1.5 h-1.5 rounded-full bg-surface-container-lowest";
+    button.prepend(dot);
+  }
+
+  function togglePasswordVisibility() {
+    const passInput = document.getElementById('clinical-pin');
+    const eyeIcon = document.getElementById('eye-icon');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      eyeIcon.textContent = 'visibility_off';
+    } else {
+      passInput.type = 'password';
+      eyeIcon.textContent = 'visibility';
+    }
+  }
+
+  function handleSignIn(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-lg">sync</span> <span>Verifying Shift Clearance...</span>`;
+    setTimeout(() => {
+      btn.innerHTML = `<span class="material-symbols-outlined text-lg">done</span> <span>Ward Access Granted</span>`;
+      btn.classList.remove('bg-primary');
+      btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+    }, 1100);
+  }
+
+  function triggerBiometrics() {
+    alert("Authenticating FaceID / Biometric Hardware for Staff Alexander M...");
+  }
+
+  function handleForgotModal() {
+    alert("Password reset instructions and Shift Token routed to Charge Nurse Desk: +91 7000371321.");
+  }
+
+  function handleRegistrationPrompt() {
+    alert("Please contact Hospital Credentialing Office or call WebVission Support at +91 7000371321.");
+  }
+</script></main></body></html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-fixed-dim": "#acc7ff", "surface-container-lowest": "#ffffff", "primary": "#0056c4", "surface-container-highest": "#d8e3fb", "on-error-container": "#93000a", "secondary": "#0059b8", "surface-bright": "#f9f9ff", "tertiary-container": "#00855b", "on-tertiary-fixed-variant": "#005236", "on-secondary-container": "#fefcff", "primary-fixed": "#d9e2ff", "surface-dim": "#cfdaf2", "error": "#ba1a1a", "outline-variant": "#c2c6d7", "inverse-primary": "#afc6ff", "surface-tint": "#0059c8", "tertiary-fixed-dim": "#4edea3", "on-surface": "#111c2d", "surface": "#f9f9ff", "inverse-on-surface": "#ecf1ff", "on-primary-fixed-variant": "#00429a", "secondary-fixed": "#d7e2ff", "inverse-surface": "#263143", "on-error": "#ffffff", "on-secondary-fixed": "#001a40", "surface-variant": "#d8e3fb", "on-primary-container": "#fefcff", "surface-container-high": "#dee8ff", "error-container": "#ffdad6", "primary-container": "#006df5", "secondary-container": "#0071e7", "surface-container-low": "#f0f3ff", "on-background": "#111c2d", "on-secondary-fixed-variant": "#004590", "on-primary-fixed": "#001944", "on-tertiary": "#ffffff", "on-tertiary-container": "#f5fff6", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-surface-variant": "#424755", "tertiary-fixed": "#6ffbbe", "tertiary": "#006947", "background": "#f9f9ff", "surface-container": "#e7eeff", "primary-fixed-dim": "#afc6ff", "on-tertiary-fixed": "#002113", "outline": "#727786" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "gutter": "1rem", "space-xl": "1.5rem", "space-md": "0.75rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "margin": "1.25rem" }, fontFamily: { "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-md": ["Inter"], "title-sm": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "title-md": ["Plus Jakarta Sans"], "metric-display": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-lg": ["Inter"], "body-lg": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"] }, fontSize: { "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }], "body-md": ["13px", { lineHeight: "18px", fontWeight: "400" }], "label-md": ["11px", { lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "600" }], "title-sm": ["14px", { lineHeight: "20px", fontWeight: "600" }], "headline-lg": ["22px", { lineHeight: "28px", letterSpacing: "-0.015em", fontWeight: "700" }], "label-sm": ["10px", { lineHeight: "12px", letterSpacing: "0.03em", fontWeight: "600" }], "title-md": ["16px", { lineHeight: "22px", letterSpacing: "-0.005em", fontWeight: "600" }], "metric-display": ["32px", { lineHeight: "36px", letterSpacing: "-0.03em", fontWeight: "800" }], "headline-md": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600" }], "label-lg": ["13px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600" }], "body-lg": ["15px", { lineHeight: "22px", fontWeight: "400" }], "headline-xl": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "700" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-9 h-9 rounded-full bg-primary-container/15 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[20px]">local_hospital</span></div><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-tight text-on-surface leading-tight">BedPulse™</span><span class="font-label-sm text-label-sm text-primary font-semibold tracking-wider uppercase">Patients</span></div></div><div class="flex items-center gap-space-sm"><div class="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-fixed/30 text-tertiary font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span>Live</span></div><button aria-label="Notifications" class="w-11 h-11 relative flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high/50 transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-sm" src="https://lh3.googleusercontent.com/aida/AEtjO1UG7H-fDCcXX1QM-J6xZq8Ru7DbvAp7VbmR9OXYMMeuGp1X216XjqldN8hwBE3XAzamJh_Y0GIVREKEat74e7zaVWvZWTniWw8aDPeTswkWi89dGcNvlb02_tgQefOIGfL0k-IXxAMv7F01aioYZ5ylwszKgOm-eJr-h9hjqOCB9ZDvo9t9HJpM_kyDKwNUZkC9JKhXO88Gd3vfagETDAeShCQ7SMd1A3cC1Ndrg7tDwJvMa5MpFTbaWRA"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full px-margin pb-10 space-y-space-md">
+<!-- Header Info & Dynamic Stats Strip -->
+<div class="flex flex-col space-y-space-xs pt-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Admitted Inpatients</h1>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm shadow-sm">
+          34 Active
+        </span>
+</div>
+<button aria-label="Sort &amp; Filter" class="flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-primary hover:bg-surface-container-high transition-transform active:scale-95 shadow-sm" id="filterBtn">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+<!-- Quick Sort Row & Live Indicator -->
+<div class="flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="text-on-surface-variant">Live Census Sync • Central Medical Tower</span>
+</div>
+<div class="relative inline-block text-left">
+<select class="bg-transparent text-primary font-label-md text-label-md appearance-none pr-4 focus:outline-none cursor-pointer" id="sortSelect">
+<option value="ward">By Ward</option>
+<option value="criticality">By Criticality</option>
+<option value="los">By Stay Duration</option>
+</select>
+<span class="material-symbols-outlined absolute right-0 top-0 pointer-events-none text-[16px] text-primary">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Search Input Container -->
+<div class="relative w-full shadow-sm rounded-xl bg-surface-container-lowest">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full pl-10 pr-10 py-3 rounded-xl bg-surface-container-lowest font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-low transition-all" id="patientSearchInput" placeholder="Search Name, UHID #IPD, Diagnosis..." type="text"/>
+<button class="absolute inset-y-0 right-0 pr-3 flex items-center text-outline hover:text-on-surface hidden" id="clearSearch">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<!-- Status Filter Segment Tabs (Horizontal scrollable) -->
+<div class="flex items-center space-x-space-xs overflow-x-auto pb-1 no-scrollbar -mx-margin px-margin">
+<button class="status-tab flex-shrink-0 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all" data-filter="all">
+      All (34)
+    </button>
+<button class="status-tab flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-filter="critical">
+      Critical / ICU (10)
+    </button>
+<button class="status-tab flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-filter="discharge">
+      Ready for Discharge (5)
+    </button>
+<button class="status-tab flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-filter="shifts">
+      Shifts (3)
+    </button>
+</div>
+<!-- Inpatient Directory Card List -->
+<div class="flex flex-col space-y-space-md" id="patientList">
+<!-- Patient 1: Rahul Sharma -->
+<div class="patient-card flex flex-col bg-surface-container-lowest rounded-lg p-space-md shadow-[0_8px_30px_rgba(29,119,255,0.06)] space-y-space-sm" data-status="critical">
+<!-- Card Header -->
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative w-11 h-11 rounded-full overflow-hidden bg-primary-fixed flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close up medical portrait of an Indian male patient aged 46 wearing a comfortable light blue clinical hospital gown in soft daylight with gentle serene expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3FwmyICDbuPhsf_o0WFe4Kdn9r6dcSCsFJz3XVunF0LgsD89pIEYYYZ9xlyC30zc3unwKM3F_9AZ121eEqkjdosVjIV5wVUjwWk2nZNd7FT4JCvkplVbIoKCEP2T0uYjbQ9m2BAKi8vFHyGjk_l13l-XMeKANM1FZh1Bfw5GGIzr_cNw2nSHbWEtVRDbBIVEDHVLC1Z-4-zyMqHPQhyHbbe3zPI57RRF-YJQvyNGnAVeNNa-g7lFn6g"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="font-title-md text-title-md text-on-surface font-bold">Rahul Sharma</h2>
+<span class="font-label-sm text-label-sm text-primary font-semibold">#IPD-8921</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">M, 46 Yrs • Admitted 2d ago</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+          Active
+        </span>
+</div>
+<!-- Bed & Doctor Assignment Strip -->
+<div class="flex items-center justify-between px-3 py-2 rounded-DEFAULT bg-surface-container-low font-body-sm text-body-sm text-on-surface">
+<div class="flex items-center gap-1.5 font-semibold text-primary">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+<span>ICU - Bed 02</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+<span class="truncate max-w-[130px]">Dr. Alexander</span>
+</div>
+</div>
+<!-- Clinical Diagnosis Details -->
+<div class="space-y-0.5">
+<div class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Diagnosis</div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Acute Bilateral Pneumonia</div>
+</div>
+<!-- Live Vitals Pill Row -->
+<div class="grid grid-cols-3 gap-1.5 py-2 px-2.5 rounded-DEFAULT bg-surface-bright">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">SpO2</span>
+<div class="flex items-center gap-1 font-title-sm text-title-sm font-bold text-tertiary">
+<span class="material-symbols-outlined text-[15px]">air</span>
+<span>96%</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Pulse</span>
+<div class="flex items-center gap-1 font-title-sm text-title-sm font-bold text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-error">favorite</span>
+<span>84 bpm</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline">Temp</span>
+<div class="flex items-center gap-1 font-title-sm text-title-sm font-bold text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-secondary">thermostat</span>
+<span>98.6°F</span>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high transition-transform active:scale-98 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-primary">sync_alt</span>
+<span>Transfer Bed</span>
+</button>
+<button class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary-container transition-transform active:scale-98 font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[16px]">clinical_notes</span>
+<span>View Chart</span>
+</button>
+</div>
+</div>
+<!-- Patient 2: Priya Verma -->
+<div class="patient-card flex flex-col bg-surface-container-lowest rounded-lg p-space-md shadow-[0_8px_30px_rgba(29,119,255,0.06)] space-y-space-sm" data-status="discharge">
+<!-- Card Header -->
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative w-11 h-11 rounded-full overflow-hidden bg-tertiary-fixed flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Gentle portrait of a South Asian woman aged 52 with warm smile sitting upright in hospital room setting soft morning ambient sunlight soft pastels" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoKtkZ0x-i12OD6MQkkABx3jqzrwyum1oHBkDxtrgLbedPNiOziSbsGz8x1BCGaXAF2Ed75HmYEmyrKyXsmW5vo2tqZAxAY-H6V2okLkGP2JfaR4klaj1ljYjDdCuJJ5oOXpymvmU5--KWAV00wEIiiDtM6ppz98JI0vrFFt11BaKKXEBLusZ4STN7vzOMamt6GMY71XztgySnCoHhK4J5vSOSEU5iQTVjeO4-29UfBi67nAuovCYXtQ"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="font-title-md text-title-md text-on-surface font-bold">Priya Verma</h2>
+<span class="font-label-sm text-label-sm text-primary font-semibold">#IPD-8923</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">F, 52 Yrs • Admitted 4d ago</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+          Discharge Ready
+        </span>
+</div>
+<!-- Bed & Doctor Assignment Strip -->
+<div class="flex items-center justify-between px-3 py-2 rounded-DEFAULT bg-surface-container-low font-body-sm text-body-sm text-on-surface">
+<div class="flex items-center gap-1.5 font-semibold text-secondary">
+<span class="material-symbols-outlined text-[18px]">single_bed</span>
+<span>DLX - Room 104</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+<span class="truncate max-w-[130px]">Dr. Meera Rao</span>
+</div>
+</div>
+<!-- Clinical Diagnosis Details -->
+<div class="space-y-0.5">
+<div class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Diagnosis</div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Post-Op Cholecystectomy (Recovery)</div>
+</div>
+<!-- Milestone Status Mini Banner -->
+<div class="flex items-center gap-2 p-2.5 rounded-DEFAULT bg-tertiary-fixed/20 text-tertiary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px] text-tertiary">task_alt</span>
+<span class="font-medium">All discharge criteria cleared by Surgery &amp; Pharmacy</span>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-tertiary text-on-tertiary hover:opacity-90 transition-transform active:scale-98 font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+<span>Process Discharge</span>
+</button>
+<button class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high transition-transform active:scale-98 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-primary">description</span>
+<span>Summary</span>
+</button>
+</div>
+</div>
+<!-- Patient 3: Louis Neilson -->
+<div class="patient-card flex flex-col bg-surface-container-lowest rounded-lg p-space-md shadow-[0_8px_30px_rgba(29,119,255,0.06)] space-y-space-sm" data-status="shifts">
+<!-- Card Header -->
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative w-11 h-11 rounded-full overflow-hidden bg-surface-container-highest flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Realistic close-up medical photograph of Caucasian man aged 38 resting comfortably on white hospital linen natural clean clinic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABmqaN0sGO_Z1qHHVznirtuogJu5Kofg6k0WCKs9eBAJP7rWqDvOdkq0tiA-OA8Lj9YkJsQxUFdK1ISd-9yGUp2F1yHtm5ujRDv1oqESRKi9EdEaKD1lcQas_BHWaDAEfJdv0KiFJhQvHvKZdXcyETDe2dk3Smc2VwV_q0pNgTr8XwG7roJHDDQG2134nyc8HG800hq5fBk7Je0uhOhKfeOky3YhfikZveCq47h9jE87puMz_0DC9d3g"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="font-title-md text-title-md text-on-surface font-bold">Louis Neilson</h2>
+<span class="font-label-sm text-label-sm text-primary font-semibold">#IPD-8922</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">M, 38 Yrs • Admitted Yesterday</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          Shift Pending
+        </span>
+</div>
+<!-- Bed & Doctor Assignment Strip -->
+<div class="flex items-center justify-between px-3 py-2 rounded-DEFAULT bg-surface-container-low font-body-sm text-body-sm text-on-surface">
+<div class="flex items-center gap-1.5 font-semibold text-secondary">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+<span>Ward B - Bed 08</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">near_me</span>
+<span class="truncate max-w-[130px]">Target: Stepdown 03</span>
+</div>
+</div>
+<!-- Clinical Diagnosis Details -->
+<div class="space-y-0.5">
+<div class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Diagnosis</div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">High Grade Pyrexia (Unknown Origin)</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center gap-2 pt-1">
+<button class="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-secondary text-on-secondary hover:bg-secondary-container transition-transform active:scale-98 font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[16px]">published_with_changes</span>
+<span>Complete Ward Transfer</span>
+</button>
+</div>
+</div>
+<!-- Patient 4: David Miller -->
+<div class="patient-card flex flex-col bg-surface-container-lowest rounded-lg p-space-md shadow-[0_8px_30px_rgba(29,119,255,0.06)] space-y-space-sm" data-status="critical">
+<!-- Card Header -->
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative w-11 h-11 rounded-full overflow-hidden bg-error-container flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Candid realistic medical photo of a senior male patient aged 61 resting in clean modern cardiac telemetry room soft rim lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPPDQ8EfFhCLhRwBBBwVT9RVADH2YR158NPMyAC4WvP9JDkCkSkBIy-5hH5nPrd4T0v0WqnWWUTalx9Dv__5pdr2uPrgRq1r-u2Q8gQDTmIfSqFfYHXEirz6dkgREV7hMKJTjdiOFVhs9Ms2qdPOQUrUEy9ZBdquNjV-uWHiYjFbmg3GUmqmUUfK_zjXvcKjjn-QNMeKheZvLrn_TMiDzcipTo6kihcz6Xt6at8d-0KLhtI7flKfJbtQ"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="font-title-md text-title-md text-on-surface font-bold">David Miller</h2>
+<span class="font-label-sm text-label-sm text-primary font-semibold">#IPD-8924</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">M, 61 Yrs • Admitted 12h ago</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
+          High Observation
+        </span>
+</div>
+<!-- Bed & Doctor Assignment Strip -->
+<div class="flex items-center justify-between px-3 py-2 rounded-DEFAULT bg-surface-container-low font-body-sm text-body-sm text-on-surface">
+<div class="flex items-center gap-1.5 font-semibold text-error">
+<span class="material-symbols-outlined text-[18px]">monitor_heart</span>
+<span>ICU - Bed 04</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+<span class="truncate max-w-[130px]">Dr. Jennifer Vance</span>
+</div>
+</div>
+<!-- Clinical Diagnosis Details -->
+<div class="space-y-0.5">
+<div class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Diagnosis</div>
+<div class="font-body-md text-body-md font-semibold text-on-surface">Unstable Angina / Cardiac Observation</div>
+</div>
+<!-- Telemetry ECG Spark Mini-Badge -->
+<div class="flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-high text-on-surface">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-[18px]">ecg</span>
+<span class="font-body-sm text-body-sm font-medium">Continuous Telemetry Active</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Sinus Tach (98)</span>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high transition-transform active:scale-98 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-primary">assignment_ind</span>
+<span>Care Plan</span>
+</button>
+<button class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary-container transition-transform active:scale-98 font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[16px]">show_chart</span>
+<span>Vitals Wave</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Empty State (Hidden by default, triggered on no filter match) -->
+<div class="hidden flex-col items-center justify-center py-12 px-6 text-center space-y-space-sm bg-surface-container-lowest rounded-lg" id="noResultsState">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[28px]">person_search</span>
+</div>
+<div class="space-y-1">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">No Patients Found</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-[220px]">
+        No active records match your query. Try resetting your search or filter tags.
+      </p>
+</div>
+<button class="px-4 py-2 rounded-full bg-primary-fixed text-primary font-label-md text-label-md" id="resetFilters">
+      Clear Filters
+    </button>
+</div>
+<!-- Floating Action Button for Inpatient Admission -->
+<div class="fixed bottom-20 right-4 z-40">
+<button class="flex items-center gap-2 px-4 py-3 rounded-full bg-primary text-on-primary shadow-[0_8px_24px_rgba(0,86,196,0.35)] hover:shadow-lg active:scale-95 transition-all focus:outline-none" id="newAdmissionBtn">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+<span class="font-label-lg text-label-lg font-bold">New Admission</span>
+</button>
+</div>
+</div>
+<script>
+  // Ensure "Patients" tab in shell bottom navigation reflects active state
+  (function setActiveNavTab() {
+    const navLinks = document.querySelectorAll('nav a[data-path]');
+    navLinks.forEach(link => {
+      if (link.getAttribute('data-path') === 'patients') {
+        link.classList.remove('text-on-surface-variant');
+        link.classList.add('text-primary', 'font-bold');
+        const icon = link.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.style.fontVariationSettings = "'FILL' 1";
+        }
+      } else {
+        link.classList.remove('text-primary', 'font-bold');
+        link.classList.add('text-on-surface-variant');
+      }
+    });
+  })();
+
+  // Interactive filtering logic
+  const tabs = document.querySelectorAll('.status-tab');
+  const cards = document.querySelectorAll('.patient-card');
+  const searchInput = document.getElementById('patientSearchInput');
+  const clearBtn = document.getElementById('clearSearch');
+  const noResults = document.getElementById('noResultsState');
+  const resetFiltersBtn = document.getElementById('resetFilters');
+
+  let activeTabFilter = 'all';
+
+  function applyFilterAndSearch() {
+    const query = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cardStatus = card.getAttribute('data-status');
+      const cardText = card.innerText.toLowerCase();
+
+      const matchesStatus = (activeTabFilter === 'all') || (cardStatus === activeTabFilter);
+      const matchesSearch = !query || cardText.includes(query);
+
+      if (matchesStatus && matchesSearch) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (visibleCount === 0) {
+      noResults.classList.remove('hidden');
+      noResults.classList.add('flex');
+    } else {
+      noResults.classList.add('hidden');
+      noResults.classList.remove('flex');
+    }
+
+    if (query.length > 0) {
+      clearBtn.classList.remove('hidden');
+    } else {
+      clearBtn.classList.add('hidden');
+    }
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+        t.classList.add('bg-surface-container', 'text-on-surface-variant');
+      });
+      tab.classList.remove('bg-surface-container', 'text-on-surface-variant');
+      tab.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+
+      activeTabFilter = tab.getAttribute('data-filter');
+      applyFilterAndSearch();
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilterAndSearch);
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    applyFilterAndSearch();
+    searchInput.focus();
+  });
+
+  if (resetFiltersBtn) {
+    resetFiltersBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      const defaultTab = document.querySelector('.status-tab[data-filter="all"]');
+      if (defaultTab) defaultTab.click();
+    });
+  }
+
+  // Micro-interaction for New Admission FAB
+  const fab = document.getElementById('newAdmissionBtn');
+  if (fab) {
+    fab.addEventListener('click', () => {
+      fab.classList.add('scale-95');
+      setTimeout(() => fab.classList.remove('scale-95'), 150);
+    });
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_-4px_24px_rgba(15,23,42,0.04),0_12px_32px_rgba(29,119,255,0.12)]" data-active-classes="text-primary font-bold"><div class="h-16 px-space-xs flex items-center justify-around"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="overview" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label-sm text-label-sm mt-0.5">Overview</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="wards-and-beds" href="#"><span class="material-symbols-outlined text-[22px]">single_bed</span><span class="font-label-sm text-label-sm mt-0.5">Wards</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="admissions" href="#"><span class="material-symbols-outlined text-[22px]">person_add</span><span class="font-label-sm text-label-sm mt-0.5">Admissions</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 transition-colors text-primary font-bold" data-path="patients" href="#"><span class="material-symbols-outlined text-[22px]">assignment</span><span class="font-label-sm text-label-sm mt-0.5">Patients</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="profile" href="#"><span class="material-symbols-outlined text-[22px]">account_circle</span><span class="font-label-sm text-label-sm mt-0.5">Profile</span></a></div></nav></body></html>
