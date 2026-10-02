@@ -11,6 +11,8 @@ import {
   Phone,
   RefreshCw,
   HeartPulse,
+  Users,
+  User,
 } from 'lucide-react';
 import { DataService } from '@/lib/supabase';
 
@@ -21,6 +23,8 @@ interface SidebarProps {
   onOpenTransfer: () => void;
   onOpenDischarge: () => void;
   onOpenWardMaster: () => void;
+  onOpenDirectory: () => void;
+  onOpenProfile: () => void;
   totalOccupied: number;
   totalBeds: number;
 }
@@ -32,6 +36,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenTransfer,
   onOpenDischarge,
   onOpenWardMaster,
+  onOpenDirectory,
+  onOpenProfile,
   totalOccupied,
   totalBeds,
 }) => {
@@ -115,6 +121,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </span>
           </button>
 
+          {/* Inpatients Directory */}
+          <button
+            onClick={onOpenDirectory}
+            className="w-full text-slate-500 hover:text-slate-800 hover:bg-slate-50 font-medium px-4 py-3 rounded-2xl flex items-center justify-between transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-slate-400 group-hover:text-brand-500 transition-colors" />
+              <span>Inpatient Directory</span>
+            </div>
+            <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+              {totalOccupied}
+            </span>
+          </button>
+
           {/* Live Ward View */}
           <button
             onClick={() => {
@@ -146,6 +166,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="text-[10px] font-semibold bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-100">
               Dynamic
             </span>
+          </button>
+
+          {/* Doctor Profile & Settings */}
+          <button
+            onClick={onOpenProfile}
+            className="w-full text-slate-500 hover:text-slate-800 hover:bg-slate-50 font-medium px-4 py-3 rounded-2xl flex items-center justify-between transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <User className="w-5 h-5 text-slate-400 group-hover:text-brand-500 transition-colors" />
+              <span>Doctor Profile</span>
+            </div>
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </button>
         </nav>
       </div>

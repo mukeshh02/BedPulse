@@ -14,6 +14,11 @@ import { AdmissionModal } from '@/components/AdmissionModal';
 import { ShiftBedModal } from '@/components/ShiftBedModal';
 import { DischargeModal } from '@/components/DischargeModal';
 import { WardMasterModal } from '@/components/WardMasterModal';
+import { DoctorProfileModal } from '@/components/DoctorProfileModal';
+import { InpatientsDirectory } from '@/components/InpatientsDirectory';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { MobileLiveBedScroller } from '@/components/MobileLiveBedScroller';
+import { UserPlus } from 'lucide-react';
 
 export default function DashboardPage() {
   const [currentTab, setCurrentTab] = useState('overview');
@@ -36,6 +41,8 @@ export default function DashboardPage() {
   const [dischargeAdmission, setDischargeAdmission] = useState<Admission | null>(null);
 
   const [isWardMasterOpen, setIsWardMasterOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
 
   // Load / Refresh Data
   const loadData = async () => {
@@ -100,8 +107,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden p-3 md:p-5 gap-5 font-sans bg-[#F1F6FD]">
-      {/* Sidebar */}
+    <div className="flex h-screen overflow-hidden p-2 sm:p-3 md:p-5 gap-5 font-sans bg-[#F1F6FD] relative">
+      {/* Desktop Navigation Sidebar */}
       <Sidebar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
@@ -120,6 +127,8 @@ export default function DashboardPage() {
           setIsDischargeOpen(true);
         }}
         onOpenWardMaster={() => setIsWardMasterOpen(true)}
+        onOpenDirectory={() => setIsDirectoryOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
         totalOccupied={occupiedCount}
         totalBeds={beds.length}
       />
@@ -131,10 +140,11 @@ export default function DashboardPage() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onOpenMobileMenu={() => setIsWardMasterOpen(true)}
+          onOpenProfile={() => setIsProfileOpen(true)}
         />
 
-        {/* Scrollable View */}
-        <div className="flex-1 overflow-y-auto pr-1 space-y-5 pb-6">
+        {/* Scrollable View with safe padding for Mobile Bottom Nav */}
+        <div className="flex-1 overflow-y-auto pr-1 space-y-5 pb-24 lg:pb-6">
           {/* Hero Welcome Banner with Doctor Cutout */}
           <HeroBanner
             availableBeds={availableCount}
@@ -161,6 +171,18 @@ export default function DashboardPage() {
             availableCount={availableCount}
             cleaningCount={cleaningCount}
             totalWards={wards.length}
+          />
+
+          {/* Horizontal Snap Scroll Bed Telemetry Scroller (Exact Stitch Mobile Feature) */}
+          <MobileLiveBedScroller
+            beds={beds}
+            wards={wards}
+            admissions={admissions}
+            onSelectBed={handleAdmitToBed}
+            onViewMatrix={() => {
+              const el = document.getElementById('ward-grid-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
           />
 
           {/* Donut Chart & Roster Section */}
@@ -204,7 +226,34 @@ export default function DashboardPage() {
         </div>
       </main>
 
+      {/* Floating Quick Action FAB (Mobile Only) */}
+      <div className="fixed right-5 bottom-20 z-30 lg:hidden">
+        <button
+          onClick={() => {
+            setPreSelectedBed(null);
+            setIsAdmissionOpen(true);
+          }}
+          aria-label="Quick Admit"
+          className="w-14 h-14 rounded-full bg-brand-500 text-white shadow-xl shadow-brand-500/35 flex items-center justify-center active:scale-90 transition-transform"
+        >
+          <UserPlus className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Fixed Mobile Bottom Navigation Bar (Stitch Mobile Shell) */}
+      <MobileBottomNav
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+        onOpenAdmission={() => {
+          setPreSelectedBed(null);
+          setIsAdmissionOpen(true);
+        }}
+        onOpenDirectory={() => setIsDirectoryOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
+      />
+
       {/* MODALS */}
+      {/* 1. Admission (Step 1 & 2) */}
       <AdmissionModal
         isOpen={isAdmissionOpen}
         onClose={() => setIsAdmissionOpen(false)}
@@ -214,6 +263,7 @@ export default function DashboardPage() {
         onAdmissionSuccess={loadData}
       />
 
+      {/* 2. Bed Shift (Step 3) */}
       <ShiftBedModal
         isOpen={isTransferOpen}
         onClose={() => setIsTransferOpen(false)}
@@ -223,6 +273,7 @@ export default function DashboardPage() {
         onShiftSuccess={loadData}
       />
 
+      {/* 3. Discharge (Step 4) */}
       <DischargeModal
         isOpen={isDischargeOpen}
         onClose={() => setIsDischargeOpen(false)}
@@ -231,12 +282,32 @@ export default function DashboardPage() {
         onDischargeSuccess={loadData}
       />
 
+      {/* 4. Dynamic Ward Master Studio */}
       <WardMasterModal
         isOpen={isWardMasterOpen}
         onClose={() => setIsWardMasterOpen(false)}
         wards={wards}
         beds={beds}
         onRefreshData={loadData}
+      />
+
+      {/* 5. Doctor Profile & Duty Settings (Stitch Mobile Profile) */}
+      <DoctorProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onOpenWardMaster={() => setIsWardMasterOpen(true)}
+        totalOccupied={occupiedCount}
+      />
+
+      {/* 6. Inpatients Directory (Stitch Inpatients Directory) */}
+      <InpatientsDirectory
+        isOpen={isDirectoryOpen}
+        onClose={() => setIsDirectoryOpen(false)}
+        wards={wards}
+        beds={beds}
+        admissions={admissions}
+        onShiftBed={handleShiftBed}
+        onDischargeBed={handleDischargeBed}
       />
     </div>
   );

@@ -1,18 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Search, Phone, Bell, Calendar, Menu } from 'lucide-react';
+import { Search, Phone, Bell, Calendar, Menu, User } from 'lucide-react';
 
 interface TopBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onOpenMobileMenu?: () => void;
+  onOpenProfile?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
   searchQuery,
   setSearchQuery,
   onOpenMobileMenu,
+  onOpenProfile,
 }) => {
   const currentDate = new Date().toLocaleDateString('en-IN', {
     day: 'numeric',
@@ -27,7 +29,8 @@ export const TopBar: React.FC<TopBarProps> = ({
       <div className="flex items-center gap-2.5">
         <button
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-xl bg-white border border-blue-100 shadow-sm text-slate-700"
+          className="lg:hidden p-2 rounded-xl bg-white border border-blue-100 shadow-sm text-slate-700 hover:bg-slate-50 transition"
+          title="Open Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -76,16 +79,22 @@ export const TopBar: React.FC<TopBarProps> = ({
           <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-500 ring-2 ring-white"></span>
         </button>
 
-        {/* User Profile Capsule */}
-        <div className="flex items-center gap-2.5 bg-white pl-1.5 pr-3 py-1 rounded-full border border-blue-100/80 shadow-sm select-none">
+        {/* User Profile Capsule (Clickable -> Opens DoctorProfileModal) */}
+        <button
+          onClick={onOpenProfile}
+          className="flex items-center gap-2.5 bg-white pl-1.5 pr-3.5 py-1 rounded-full border border-blue-100/80 shadow-sm select-none hover:border-brand-300 transition text-left"
+        >
           <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center font-bold text-xs shadow-sm">
             Dr
           </div>
-          <div className="text-left leading-tight hidden md:block">
+          <div className="leading-tight hidden md:block">
             <p className="text-xs font-bold text-slate-800">Dr. Alexander</p>
-            <p className="text-[10px] text-slate-400">Chief of Inpatient Care</p>
+            <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              On Duty Rounds
+            </p>
           </div>
-        </div>
+        </button>
       </div>
     </header>
   );
