@@ -20,6 +20,8 @@ import {
   Bell,
   Menu,
   X,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react';
 import { DataService } from '@/lib/supabase';
 
@@ -58,6 +60,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
     { href: '/wards', label: 'Live Ward View', icon: BedDouble, badge: `${totalOccupied}/${totalBeds}`, badgeClass: 'bg-emerald-50 text-emerald-600' },
     { href: '/ward-master', label: 'Ward Master Studio', icon: Sliders, badge: 'Studio', badgeClass: 'bg-purple-50 text-purple-600 border-purple-100' },
     { href: '/profile', label: 'Doctor Profile', icon: User, badge: null },
+    { href: '/register', label: 'Staff Onboarding', icon: ShieldCheck, badge: 'Enroll', badgeClass: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+    { href: '/login', label: 'Staff Portal / PIN', icon: Lock, badge: 'Auth', badgeClass: 'bg-blue-50 text-brand-600 border-blue-100' },
   ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
