@@ -22,6 +22,7 @@ import {
   Phone,
   Settings,
   Sparkles,
+  UserPlus,
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -64,11 +65,18 @@ export default function ProfilePage() {
 
           <div className="flex items-center gap-2">
             <Link
+              href="/register"
+              className="px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1.5 shadow-sm"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Onboard Staff
+            </Link>
+            <Link
               href="/login"
               className="px-4 py-2 rounded-2xl bg-rose-50 text-rose-700 border border-rose-100 text-xs font-bold hover:bg-rose-100 transition flex items-center gap-1.5 shadow-sm"
             >
               <LogOut className="w-3.5 h-3.5" />
-              Switch Staff Account
+              Switch Account
             </Link>
           </div>
         </div>

@@ -311,8 +311,14 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
       {/* MOBILE DRAWER OVERLAY */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex lg:hidden">
-          <div className="w-72 bg-white h-full p-5 flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex lg:hidden"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-72 bg-white h-full p-5 flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200"
+          >
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">

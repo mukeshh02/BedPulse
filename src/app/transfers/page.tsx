@@ -126,6 +126,7 @@ function TransfersPipeline() {
         confetti({ particleCount: 50, spread: 60 });
       } catch {}
 
+      setTargetBedId('');
       await loadData();
     } catch (err: any) {
       console.error(err);

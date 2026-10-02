@@ -483,10 +483,10 @@ export default function WardsPage() {
                                 </Link>
                               )}
 
-                              {bed.status === 'occupied' && admission && (
+                              {bed.status === 'occupied' && (
                                 <>
                                   <Link
-                                    href={`/transfers?admissionId=${admission.id}`}
+                                    href={admission ? `/transfers?admissionId=${admission.id}` : `/transfers?bedId=${bed.id}`}
                                     className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/70 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1"
                                     title="Shift / Transfer Bed"
                                   >
@@ -494,7 +494,7 @@ export default function WardsPage() {
                                     Shift
                                   </Link>
                                   <Link
-                                    href={`/discharge?admissionId=${admission.id}`}
+                                    href={admission ? `/discharge?admissionId=${admission.id}` : `/discharge?bedId=${bed.id}`}
                                     className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/70 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1"
                                     title="Discharge or Refer"
                                   >
@@ -511,6 +511,16 @@ export default function WardsPage() {
                                 >
                                   <Sparkles className="w-3.5 h-3.5" />
                                   Mark as Ready / Vacant
+                                </button>
+                              )}
+
+                              {bed.status === 'maintenance' && (
+                                <button
+                                  onClick={() => handleMarkClean(bed.id)}
+                                  className="w-full py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center gap-1"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  Restore to Vacant
                                 </button>
                               )}
                             </div>
