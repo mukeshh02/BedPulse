@@ -28,7 +28,7 @@ import { AuthService, defaultDoctor, defaultNurse, defaultAdmin, ActiveStaff, St
 import { DataService } from '@/lib/supabase';
 
 interface LandingPageProps {
-  onLoginSuccess: (staff: ActiveStaff) => void;
+  onLoginSuccess?: (staff: ActiveStaff) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
@@ -36,9 +36,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
   const [selectedRole, setSelectedRole] = useState<StaffRole>('Doctor');
   const [pin, setPin] = useState('WardAlpha2024!');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [stats, setStats] = useState({ total: 33, occupied: 12, vacant: 18, cleaning: 3 });
+  const [currentStaff, setCurrentStaff] = useState<ActiveStaff | null>(null);
+  const [stats, setStats] = useState({ total: 33, occupied: 0, vacant: 33, cleaning: 0 });
 
   useEffect(() => {
+    setCurrentStaff(AuthService.getCurrentStaff());
     DataService.getBeds().then((beds) => {
       if (beds && beds.length > 0) {
         setStats({
@@ -57,7 +59,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
     if (role === 'Admin') staff = defaultAdmin;
 
     AuthService.login(staff);
-    onLoginSuccess(staff);
+    if (onLoginSuccess) {
+      onLoginSuccess(staff);
+    }
+    router.push('/dashboard');
   };
 
   const handleCustomLogin = (e: React.FormEvent) => {
@@ -88,6 +93,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
         </div>
 
         <div className="flex items-center gap-2.5 sm:gap-3">
+          {currentStaff && (
+            <Link
+              href="/dashboard"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-brand-200 text-xs font-bold text-brand-600 hover:bg-brand-500 hover:text-white transition shadow-xs"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Go to Active Dashboard ({currentStaff.role})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
+
           <a
             href="tel:+917000371321"
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-blue-100 shadow-sm text-xs font-bold text-slate-700 hover:text-brand-600 transition"

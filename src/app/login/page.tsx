@@ -73,7 +73,7 @@ export default function LoginPage() {
 
     setTimeout(() => {
       setIsSubmitting(false);
-      router.push('/');
+      router.push('/dashboard');
     }, 400);
   };
 

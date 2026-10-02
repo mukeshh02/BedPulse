@@ -94,7 +94,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
 
   const navLinks = [
     {
-      href: '/',
+      href: '/dashboard',
       label: 'Overview',
       icon: LayoutDashboard,
       badge: null,
@@ -188,7 +188,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
       <aside className="w-72 bg-white rounded-3xl p-5 flex flex-col justify-between border border-blue-50/80 shadow-[0_10px_35px_rgba(29,119,255,0.06)] shrink-0 select-none hidden lg:flex">
         <div className="flex flex-col gap-4 overflow-y-auto pr-1">
           {/* Brand Header */}
-          <Link href="/" className="flex items-center gap-3 px-2 pt-1 group">
+          <Link href="/dashboard" className="flex items-center gap-3 px-2 pt-1 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-white shadow-md shadow-brand-500/30 group-hover:scale-105 transition-transform">
               <HeartPulse className="w-6 h-6 stroke-[2.2]" />
             </div>
@@ -531,9 +531,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] lg:hidden">
         <div className="h-16 px-3 flex items-center justify-around max-w-lg mx-auto">
           <Link
-            href="/"
+            href="/dashboard"
             className={`flex flex-col items-center justify-center min-w-[56px] py-1 transition ${
-              pathname === '/' ? 'text-brand-500 font-bold' : 'text-slate-400 hover:text-slate-700'
+              pathname === '/dashboard' ? 'text-brand-500 font-bold' : 'text-slate-400 hover:text-slate-700'
             }`}
           >
             <LayoutDashboard className="w-5 h-5" />
