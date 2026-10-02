@@ -8,6 +8,9 @@ export interface Ward {
   code: string;
   description?: string;
   floor?: string;
+  floor_number?: string;
+  department?: string;
+  base_price_per_day?: number;
   color_accent: string;
   created_at?: string;
 }
@@ -17,8 +20,13 @@ export interface Bed {
   bed_number: string;
   ward_id: string;
   ward?: Ward;
-  room_type: string;
-  daily_rate: number;
+  room_type?: string;
+  bed_type?: string;
+  daily_rate?: number;
+  price_per_day?: number;
+  has_oxygen?: boolean;
+  has_ventilator?: boolean;
+  has_cardiac_monitor?: boolean;
   status: BedStatus;
   current_admission?: Admission;
   created_at?: string;

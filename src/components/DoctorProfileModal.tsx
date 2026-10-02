@@ -30,6 +30,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
   isOpen,
   onClose,
   onOpenWardMaster,
+  onLogout,
   totalOccupied,
 }) => {
   const [isOnDuty, setIsOnDuty] = useState(true);

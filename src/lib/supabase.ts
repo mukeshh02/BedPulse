@@ -112,6 +112,10 @@ export const DataService = {
     setLocal(STORAGE_KEYS.BEDS, updated);
   },
 
+  async markBedClean(bedId: string): Promise<void> {
+    await this.updateBedStatus(bedId, 'vacant');
+  },
+
   // --- PATIENTS ---
   async getPatients(): Promise<Patient[]> {
     if (isSupabaseConfigured && supabase) {
