@@ -2,6 +2,7 @@
 -- BedPulse™ Hospital Inpatient & Ward Care OS — Database Schema
 -- Developed by WebVission | Support: +91 7000371321
 -- Target Database: Supabase (PostgreSQL 15+)
+-- 100% Safe & Idempotent (Can be run multiple times without errors)
 -- ==============================================================================
 
 -- Enable UUID extension
@@ -98,7 +99,15 @@ ALTER TABLE public.admissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bed_transfers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.discharges ENABLE ROW LEVEL SECURITY;
 
--- Allow public read/write for intranet demo & reception desk (adjustable in prod)
+-- Drop existing policies first to prevent "policy already exists" error
+DROP POLICY IF EXISTS "Allow public all access on wards" ON public.wards;
+DROP POLICY IF EXISTS "Allow public all access on beds" ON public.beds;
+DROP POLICY IF EXISTS "Allow public all access on patients" ON public.patients;
+DROP POLICY IF EXISTS "Allow public all access on admissions" ON public.admissions;
+DROP POLICY IF EXISTS "Allow public all access on bed_transfers" ON public.bed_transfers;
+DROP POLICY IF EXISTS "Allow public all access on discharges" ON public.discharges;
+
+-- Create fresh open policies
 CREATE POLICY "Allow public all access on wards" ON public.wards FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on beds" ON public.beds FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on patients" ON public.patients FOR ALL USING (true) WITH CHECK (true);
@@ -106,128 +115,165 @@ CREATE POLICY "Allow public all access on admissions" ON public.admissions FOR A
 CREATE POLICY "Allow public all access on bed_transfers" ON public.bed_transfers FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on discharges" ON public.discharges FOR ALL USING (true) WITH CHECK (true);
 
--- Enable Realtime publication for BedPulse live updates
-ALTER PUBLICATION supabase_realtime ADD TABLE public.beds;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.admissions;
+-- Enable Realtime publication safely
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'beds'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.beds;
+    END IF;
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'admissions'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.admissions;
+    END IF;
+END $$;
 
 -- ==============================================================================
 -- INITIAL SEED DATA (Your exact 6 Wards & 33 Beds)
+-- Safe INSERT with ON CONFLICT DO NOTHING
 -- ==============================================================================
 
-DO $$
-DECLARE
-    icu_id UUID;
-    fgw_id UUID;
-    mgw_id UUID;
-    pvt_id UUID;
-    dlx_id UUID;
-    pre_id UUID;
-    p1_id UUID;
-    p2_id UUID;
-    p3_id UUID;
-    b_icu1 UUID;
-    b_fgw2 UUID;
-    b_mgw1 UUID;
-BEGIN
-    -- Insert 6 Wards
-    INSERT INTO public.wards (name, code, description, floor, color_accent)
-    VALUES ('Intensive Care Unit', 'ICU', 'Critical care with ventilator support', 'Ground Floor', '#F43F5E')
-    RETURNING id INTO icu_id;
+-- 1. SEED 6 WARDS
+INSERT INTO public.wards (name, code, description, floor, color_accent) VALUES
+('Intensive Care Unit', 'ICU', 'Critical care with ventilator support', 'Ground Floor', '#F43F5E'),
+('Female General Ward', 'FGW', 'Inpatient care for female patients', '1st Floor', '#EC4899'),
+('Male General Ward', 'MGW', 'Inpatient care for male patients', '1st Floor', '#3B82F6'),
+('Private Rooms', 'PVT', 'Single-occupancy private recovery suites', '2nd Floor', '#8B5CF6'),
+('Deluxe Rooms', 'DLX', 'Luxury inpatient suites with attendant lounge', '2nd Floor', '#F59E0B'),
+('Pre-Operative Care', 'PRE', 'Pre-surgical preparation and observation', 'Ground Floor OT Wing', '#06B6D4')
+ON CONFLICT (code) DO NOTHING;
 
-    INSERT INTO public.wards (name, code, description, floor, color_accent)
-    VALUES ('Female General Ward', 'FGW', 'Inpatient care for female patients', '1st Floor', '#EC4899')
-    RETURNING id INTO fgw_id;
+-- 2. SEED ICU (5 BEDS)
+INSERT INTO public.beds (ward_id, bed_number, room_type, daily_rate, status)
+SELECT id, bed_num, r_type, rate, stat FROM public.wards,
+(VALUES
+  ('ICU-01', 'ICU Ventilator', 4500.00, 'occupied'),
+  ('ICU-02', 'ICU Ventilator', 4500.00, 'vacant'),
+  ('ICU-03', 'ICU Monitor', 4000.00, 'occupied'),
+  ('ICU-04', 'ICU Monitor', 4000.00, 'vacant'),
+  ('ICU-05', 'ICU Stepdown', 3500.00, 'cleaning')
+) AS b(bed_num, r_type, rate, stat)
+WHERE code = 'ICU'
+ON CONFLICT (ward_id, bed_number) DO NOTHING;
 
-    INSERT INTO public.wards (name, code, description, floor, color_accent)
-    VALUES ('Male General Ward', 'MGW', 'Inpatient care for male patients', '1st Floor', '#3B82F6')
-    RETURNING id INTO mgw_id;
+-- 3. SEED FGW (13 BEDS)
+INSERT INTO public.beds (ward_id, bed_number, room_type, daily_rate, status)
+SELECT id, bed_num, 'General Bed', 1200.00, stat FROM public.wards,
+(VALUES
+  ('FGW-01', 'occupied'),
+  ('FGW-02', 'occupied'),
+  ('FGW-03', 'vacant'),
+  ('FGW-04', 'vacant'),
+  ('FGW-05', 'vacant'),
+  ('FGW-06', 'occupied'),
+  ('FGW-07', 'vacant'),
+  ('FGW-08', 'vacant'),
+  ('FGW-09', 'vacant'),
+  ('FGW-10', 'vacant'),
+  ('FGW-11', 'vacant'),
+  ('FGW-12', 'vacant'),
+  ('FGW-13', 'vacant')
+) AS b(bed_num, stat)
+WHERE code = 'FGW'
+ON CONFLICT (ward_id, bed_number) DO NOTHING;
 
-    INSERT INTO public.wards (name, code, description, floor, color_accent)
-    VALUES ('Private Rooms', 'PVT', 'Single-occupancy private recovery suites', '2nd Floor', '#8B5CF6')
-    RETURNING id INTO pvt_id;
+-- 4. SEED MGW (6 BEDS)
+INSERT INTO public.beds (ward_id, bed_number, room_type, daily_rate, status)
+SELECT id, bed_num, 'General Bed', 1200.00, stat FROM public.wards,
+(VALUES
+  ('MGW-01', 'occupied'),
+  ('MGW-02', 'vacant'),
+  ('MGW-03', 'vacant'),
+  ('MGW-04', 'occupied'),
+  ('MGW-05', 'vacant'),
+  ('MGW-06', 'cleaning')
+) AS b(bed_num, stat)
+WHERE code = 'MGW'
+ON CONFLICT (ward_id, bed_number) DO NOTHING;
 
-    INSERT INTO public.wards (name, code, description, floor, color_accent)
-    VALUES ('Deluxe Rooms', 'DLX', 'Luxury inpatient suites with attendant lounge', '2nd Floor', '#F59E0B')
-    RETURNING id INTO dlx_id;
+-- 5. SEED PRIVATE (3 ROOMS)
+INSERT INTO public.beds (ward_id, bed_number, room_type, daily_rate, status)
+SELECT id, bed_num, 'Private Single Room', 2800.00, stat FROM public.wards,
+(VALUES
+  ('PVT-01', 'vacant'),
+  ('PVT-02', 'occupied'),
+  ('PVT-03', 'vacant')
+) AS b(bed_num, stat)
+WHERE code = 'PVT'
+ON CONFLICT (ward_id, bed_number) DO NOTHING;
 
-    INSERT INTO public.wards (name, code, description, floor, color_accent)
-    VALUES ('Pre-Operative Care', 'PRE', 'Pre-surgical preparation and observation', 'Ground Floor OT Wing', '#06B6D4')
-    RETURNING id INTO pre_id;
+-- 6. SEED DELUXE (4 ROOMS)
+INSERT INTO public.beds (ward_id, bed_number, room_type, daily_rate, status)
+SELECT id, bed_num, 'Deluxe Suite', 4500.00, stat FROM public.wards,
+(VALUES
+  ('DLX-01', 'occupied'),
+  ('DLX-02', 'vacant'),
+  ('DLX-03', 'vacant'),
+  ('DLX-04', 'vacant')
+) AS b(bed_num, stat)
+WHERE code = 'DLX'
+ON CONFLICT (ward_id, bed_number) DO NOTHING;
 
-    -- Insert ICU (5 Beds)
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('ICU-01', icu_id, 'ICU Ventilator', 4500.00, 'occupied') RETURNING id INTO b_icu1;
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('ICU-02', icu_id, 'ICU Ventilator', 4500.00, 'vacant'),
-    ('ICU-03', icu_id, 'ICU Monitor', 4000.00, 'occupied'),
-    ('ICU-04', icu_id, 'ICU Monitor', 4000.00, 'vacant'),
-    ('ICU-05', icu_id, 'ICU Stepdown', 3500.00, 'cleaning');
+-- 7. SEED PRE-OP (2 BEDS)
+INSERT INTO public.beds (ward_id, bed_number, room_type, daily_rate, status)
+SELECT id, bed_num, 'Pre-Op Holding Bed', 1500.00, stat FROM public.wards,
+(VALUES
+  ('PRE-01', 'vacant'),
+  ('PRE-02', 'vacant')
+) AS b(bed_num, stat)
+WHERE code = 'PRE'
+ON CONFLICT (ward_id, bed_number) DO NOTHING;
 
-    -- Insert FGW (13 Beds)
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('FGW-01', fgw_id, 'General Bed', 1200.00, 'occupied'),
-    ('FGW-02', fgw_id, 'General Bed', 1200.00, 'occupied') RETURNING id INTO b_fgw2;
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('FGW-03', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-04', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-05', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-06', fgw_id, 'General Bed', 1200.00, 'occupied'),
-    ('FGW-07', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-08', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-09', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-10', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-11', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-12', fgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('FGW-13', fgw_id, 'General Bed', 1200.00, 'vacant');
+-- 8. SEED DEMO PATIENTS
+INSERT INTO public.patients (uhid, full_name, age, gender, mobile, guardian_name, guardian_mobile, address) VALUES
+('UHID-8921', 'Rameshwar Sharma', 58, 'male', '9827011223', 'Sunil Sharma (Son)', '9827099887', 'Sector 4, Main Road, City'),
+('UHID-8922', 'Sunita Devi Patel', 44, 'female', '9425033445', 'Rajesh Patel (Husband)', '9425011223', 'Near Old Bus Stand'),
+('UHID-8923', 'Amitabh Sengupta', 62, 'male', '9893044556', 'Priya Sengupta (Wife)', '9893011223', 'Green Park Colony')
+ON CONFLICT (uhid) DO NOTHING;
 
-    -- Insert MGW (6 Beds)
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('MGW-01', mgw_id, 'General Bed', 1200.00, 'occupied') RETURNING id INTO b_mgw1;
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('MGW-02', mgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('MGW-03', mgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('MGW-04', mgw_id, 'General Bed', 1200.00, 'occupied'),
-    ('MGW-05', mgw_id, 'General Bed', 1200.00, 'vacant'),
-    ('MGW-06', mgw_id, 'General Bed', 1200.00, 'cleaning');
+-- 9. SEED DEMO ADMISSIONS
+INSERT INTO public.admissions (admission_number, patient_id, bed_id, ward_id, admitting_doctor, provisional_diagnosis, status, notes)
+SELECT
+    'IPD-2025-0101',
+    p.id,
+    b.id,
+    w.id,
+    'Dr. Sharma (Cardio)',
+    'Acute Coronary Syndrome / Observation',
+    'admitted',
+    'Continuous cardiac monitor & O2 support.'
+FROM public.patients p, public.beds b, public.wards w
+WHERE p.uhid = 'UHID-8921' AND b.bed_number = 'ICU-01' AND w.code = 'ICU'
+ON CONFLICT (admission_number) DO NOTHING;
 
-    -- Insert Private (3 Rooms)
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('PVT-01', pvt_id, 'Private Single Room', 2800.00, 'vacant'),
-    ('PVT-02', pvt_id, 'Private Single Room', 2800.00, 'occupied'),
-    ('PVT-03', pvt_id, 'Private Single Room', 2800.00, 'vacant');
+INSERT INTO public.admissions (admission_number, patient_id, bed_id, ward_id, admitting_doctor, provisional_diagnosis, status, notes)
+SELECT
+    'IPD-2025-0102',
+    p.id,
+    b.id,
+    w.id,
+    'Dr. Verma (Medicine)',
+    'Severe Dehydration & Viral Pyrexia',
+    'admitted',
+    'IV fluids 100ml/hr. Daily CBC monitoring.'
+FROM public.patients p, public.beds b, public.wards w
+WHERE p.uhid = 'UHID-8922' AND b.bed_number = 'FGW-02' AND w.code = 'FGW'
+ON CONFLICT (admission_number) DO NOTHING;
 
-    -- Insert Deluxe (4 Rooms)
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('DLX-01', dlx_id, 'Deluxe Suite', 4500.00, 'occupied'),
-    ('DLX-02', dlx_id, 'Deluxe Suite', 4500.00, 'vacant'),
-    ('DLX-03', dlx_id, 'Deluxe Suite', 4500.00, 'vacant'),
-    ('DLX-04', dlx_id, 'Deluxe Suite', 4500.00, 'vacant');
-
-    -- Insert Pre-Op (2 Beds)
-    INSERT INTO public.beds (bed_number, ward_id, room_type, daily_rate, status) VALUES
-    ('PRE-01', pre_id, 'Pre-Op Holding Bed', 1500.00, 'vacant'),
-    ('PRE-02', pre_id, 'Pre-Op Holding Bed', 1500.00, 'vacant');
-
-    -- Insert Demo Patients
-    INSERT INTO public.patients (uhid, full_name, age, gender, mobile, guardian_name, guardian_mobile)
-    VALUES ('UHID-8921', 'Rameshwar Sharma', 58, 'male', '9827011223', 'Sunil Sharma', '9827099887')
-    RETURNING id INTO p1_id;
-
-    INSERT INTO public.patients (uhid, full_name, age, gender, mobile, guardian_name, guardian_mobile)
-    VALUES ('UHID-8922', 'Sunita Devi Patel', 44, 'female', '9425033445', 'Rajesh Patel', '9425011223')
-    RETURNING id INTO p2_id;
-
-    INSERT INTO public.patients (uhid, full_name, age, gender, mobile, guardian_name, guardian_mobile)
-    VALUES ('UHID-8923', 'Amitabh Sengupta', 62, 'male', '9893044556', 'Priya Sengupta', '9893011223')
-    RETURNING id INTO p3_id;
-
-    -- Insert Demo Admissions
-    INSERT INTO public.admissions (admission_number, patient_id, bed_id, ward_id, admitting_doctor, provisional_diagnosis, status)
-    VALUES ('IPD-2025-0101', p1_id, b_icu1, icu_id, 'Dr. Sharma (Cardio)', 'Acute Coronary Syndrome / Chest Pain', 'admitted');
-
-    INSERT INTO public.admissions (admission_number, patient_id, bed_id, ward_id, admitting_doctor, provisional_diagnosis, status)
-    VALUES ('IPD-2025-0102', p2_id, b_fgw2, fgw_id, 'Dr. Verma (Medicine)', 'Severe Dehydration & Viral Pyrexia', 'admitted');
-
-    INSERT INTO public.admissions (admission_number, patient_id, bed_id, ward_id, admitting_doctor, provisional_diagnosis, status)
-    VALUES ('IPD-2025-0103', p3_id, b_mgw1, mgw_id, 'Dr. Gupta (Surgery)', 'Post-op Hernia Repair Care', 'admitted');
-END $$;
+INSERT INTO public.admissions (admission_number, patient_id, bed_id, ward_id, admitting_doctor, provisional_diagnosis, status, notes)
+SELECT
+    'IPD-2025-0103',
+    p.id,
+    b.id,
+    w.id,
+    'Dr. Gupta (Surgery)',
+    'Post-op Inguinal Hernia Repair Care',
+    'admitted',
+    'Dressing dry and intact.'
+FROM public.patients p, public.beds b, public.wards w
+WHERE p.uhid = 'UHID-8923' AND b.bed_number = 'MGW-01' AND w.code = 'MGW'
+ON CONFLICT (admission_number) DO NOTHING;
