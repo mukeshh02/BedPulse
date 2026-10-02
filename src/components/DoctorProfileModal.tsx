@@ -22,6 +22,7 @@ interface DoctorProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenWardMaster: () => void;
+  onLogout?: () => void;
   totalOccupied: number;
 }
 
@@ -260,8 +261,8 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           <div className="pt-2">
             <button
               onClick={() => {
-                alert('Dr. Alexander signed out. Returning to role selector.');
                 onClose();
+                if (onLogout) onLogout();
               }}
               className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl font-bold transition flex items-center justify-center gap-2 border border-rose-100"
             >

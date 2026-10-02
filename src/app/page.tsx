@@ -16,6 +16,8 @@ import { DischargeModal } from '@/components/DischargeModal';
 import { WardMasterModal } from '@/components/WardMasterModal';
 import { DoctorProfileModal } from '@/components/DoctorProfileModal';
 import { InpatientsDirectory } from '@/components/InpatientsDirectory';
+import { SignInModal } from '@/components/SignInModal';
+import { StaffRegistrationModal } from '@/components/StaffRegistrationModal';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { MobileLiveBedScroller } from '@/components/MobileLiveBedScroller';
 import { UserPlus } from 'lucide-react';
@@ -43,6 +45,9 @@ export default function DashboardPage() {
   const [isWardMasterOpen, setIsWardMasterOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [currentStaff, setCurrentStaff] = useState({ name: 'Dr. Alexander Wright, MD', role: 'Doctor' });
 
   // Load / Refresh Data
   const loadData = async () => {
@@ -296,6 +301,7 @@ export default function DashboardPage() {
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
         onOpenWardMaster={() => setIsWardMasterOpen(true)}
+        onLogout={() => setIsSignInOpen(true)}
         totalOccupied={occupiedCount}
       />
 
@@ -308,6 +314,21 @@ export default function DashboardPage() {
         admissions={admissions}
         onShiftBed={handleShiftBed}
         onDischargeBed={handleDischargeBed}
+      />
+
+      {/* 7. Staff Sign-In (Stitch Mobile Sign-In) */}
+      <SignInModal
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+        onOpenRegister={() => setIsRegisterOpen(true)}
+        onLoginSuccess={(role, name) => setCurrentStaff({ role, name })}
+      />
+
+      {/* 8. Staff Registration (Stitch Mobile Staff Registration) */}
+      <StaffRegistrationModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onSuccess={(name, role) => setCurrentStaff({ name, role })}
       />
     </div>
   );
