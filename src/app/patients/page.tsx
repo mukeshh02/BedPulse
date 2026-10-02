@@ -20,8 +20,9 @@ import {
   RefreshCw,
   AlertTriangle,
   Clock,
-  Activity,
   ShieldAlert,
+  CheckCircle2,
+  Activity,
 } from 'lucide-react';
 
 function PatientsDirectoryContent() {
@@ -249,12 +250,23 @@ function PatientsDirectoryContent() {
           <p className="text-sm font-bold text-slate-700">Loading Inpatient Directory...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-blue-50 shadow-sm">
-          <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h4 className="text-base font-bold text-slate-800">No Inpatients Found</h4>
-          <p className="text-xs text-slate-400 mt-1">
-            No patients match the search or filter criteria.
-          </p>
+        <div className="bg-white rounded-3xl p-12 text-center border border-blue-50 shadow-sm space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <div>
+            <h4 className="text-base font-bold text-slate-800">Fresh Inpatient Directory</h4>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              No active inpatients admitted currently. Click &quot;Admit Patient&quot; to intake a patient into an available vacant bed.
+            </p>
+          </div>
+          <Link
+            href="/admit"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition shadow-sm"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Admit Patient (Step 1 &amp; 2)</span>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

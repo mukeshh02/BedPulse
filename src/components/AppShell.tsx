@@ -339,27 +339,14 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center">
             <button
               onClick={handleLogout}
-              className="flex-1 py-1.5 px-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1"
+              className="w-full py-2 px-3 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
               title="Sign Out to Landing Page"
             >
-              <LogOut className="w-3 h-3" />
-              <span>Sign Out</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (confirm('Reset to standard demo hospital data (6 Wards, 33 Beds)?')) {
-                  DataService.resetToDemo();
-                }
-              }}
-              className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1"
-              title="Reset Demo Data"
-            >
-              <RefreshCw className="w-3 h-3" />
-              <span>Reset</span>
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out / Switch Shift</span>
             </button>
           </div>
         </div>

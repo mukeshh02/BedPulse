@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Admission, Bed } from '@/types';
-import { Activity, ArrowRightLeft, LogOut, User } from 'lucide-react';
+import { Activity, ArrowRightLeft, LogOut, User, CheckCircle2 } from 'lucide-react';
 
 interface PatientActivityListProps {
   admissions: Admission[];
@@ -35,8 +35,14 @@ export const PatientActivityList: React.FC<PatientActivityListProps> = ({
       </div>
 
       {activeAdmissions.length === 0 ? (
-        <div className="py-8 text-center text-slate-400 text-xs">
-          No patients currently admitted. Click &quot;Admit Patient&quot; to begin.
+        <div className="py-8 text-center space-y-2">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <p className="text-xs font-bold text-slate-800">Fresh Inpatient Roster Ready</p>
+          <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+            0 active patients. All beds sanitized &amp; vacant for new admissions.
+          </p>
         </div>
       ) : (
         <div className="divide-y divide-slate-100 space-y-2 max-h-96 overflow-y-auto pr-1">

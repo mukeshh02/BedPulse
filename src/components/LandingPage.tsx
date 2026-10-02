@@ -219,7 +219,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                 <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5 text-brand-500" /> Or Authenticate with Shift Passcode:
                 </span>
-                <span className="text-[10px] text-slate-400">Default PIN: WardAlpha2024!</span>
+                <span className="text-[10px] text-slate-400">Hospital Clinical Passcode</span>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -304,31 +304,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
                 <div className="space-y-2.5 text-slate-800">
                   <div className="bg-white/95 p-3 rounded-2xl shadow-sm flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-                        ICU
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <CheckCircle2 className="w-4 h-4" />
                       </div>
                       <div>
-                        <h5 className="font-extrabold text-slate-900">Bed ICU-01 • Ramesh Verma</h5>
-                        <p className="text-[10px] text-slate-500">Acute Myocardial Infarction</p>
+                        <h5 className="font-extrabold text-slate-900">Hospital Sanitize Protocol</h5>
+                        <p className="text-[10px] text-slate-500">All 33 Wards &amp; Beds 100% Vacant &amp; Ready</p>
                       </div>
                     </div>
-                    <div className="text-right font-mono font-bold text-xs text-rose-600">
-                      SpO₂ 94% • 104 HR
+                    <div className="text-right font-mono font-bold text-xs text-emerald-600">
+                      0 Occupied • Ready
                     </div>
                   </div>
 
                   <div className="bg-white/95 p-3 rounded-2xl shadow-sm flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                        MGW
+                      <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center font-bold">
+                        <HeartPulse className="w-4 h-4" />
                       </div>
                       <div>
-                        <h5 className="font-extrabold text-slate-900">Bed MGW-02 • Suresh Patil</h5>
-                        <p className="text-[10px] text-slate-500">Post-Appendectomy Recovery</p>
+                        <h5 className="font-extrabold text-slate-900">Admission Intake Channel</h5>
+                        <p className="text-[10px] text-slate-500">Ready for Patient Intake &amp; Bed Allocation</p>
                       </div>
                     </div>
-                    <div className="text-right font-mono font-bold text-xs text-emerald-600">
-                      SpO₂ 98% • Ready
+                    <div className="text-right font-mono font-bold text-xs text-brand-600">
+                      Step 1 Active
                     </div>
                   </div>
                 </div>

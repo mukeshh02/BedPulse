@@ -25,12 +25,12 @@ export const supabase = isSupabaseConfigured
 // ============================================================================
 
 const STORAGE_KEYS = {
-  WARDS: 'bedpulse_wards_v1',
-  BEDS: 'bedpulse_beds_v1',
-  PATIENTS: 'bedpulse_patients_v1',
-  ADMISSIONS: 'bedpulse_admissions_v1',
-  TRANSFERS: 'bedpulse_transfers_v1',
-  DISCHARGES: 'bedpulse_discharges_v1',
+  WARDS: 'bedpulse_wards_fresh_v2',
+  BEDS: 'bedpulse_beds_fresh_v2',
+  PATIENTS: 'bedpulse_patients_fresh_v2',
+  ADMISSIONS: 'bedpulse_admissions_fresh_v2',
+  TRANSFERS: 'bedpulse_transfers_fresh_v2',
+  DISCHARGES: 'bedpulse_discharges_fresh_v2',
 };
 
 // Helper for localStorage
@@ -122,7 +122,7 @@ export const DataService = {
   async getPatients(): Promise<Patient[]> {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
-      if (!error && data && data.length > 0) return data;
+      if (!error && data) return data;
     }
     return getLocal<Patient[]>(STORAGE_KEYS.PATIENTS, initialPatients);
   },
@@ -273,20 +273,15 @@ export const DataService = {
         .from('admissions')
         .select('*, patient:patients(*), bed:beds(*), ward:wards(*)')
         .order('admission_date', { ascending: false });
-      if (!error && data && data.length > 0) return data;
+      if (!error && data) return data;
     }
     return getLocal<Admission[]>(STORAGE_KEYS.ADMISSIONS, initialAdmissions);
   },
 
-  // Reset demo data helper
-  resetToDemo() {
+  // Clear data helper
+  clearHospitalData() {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem(STORAGE_KEYS.WARDS);
-    localStorage.removeItem(STORAGE_KEYS.BEDS);
-    localStorage.removeItem(STORAGE_KEYS.PATIENTS);
-    localStorage.removeItem(STORAGE_KEYS.ADMISSIONS);
-    localStorage.removeItem(STORAGE_KEYS.TRANSFERS);
-    localStorage.removeItem(STORAGE_KEYS.DISCHARGES);
+    Object.values(STORAGE_KEYS).forEach((k) => localStorage.removeItem(k));
     window.location.reload();
   },
 };

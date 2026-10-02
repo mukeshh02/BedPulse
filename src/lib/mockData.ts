@@ -52,20 +52,20 @@ export const initialWards: Ward[] = [
 ];
 
 export const initialBeds: Bed[] = [
-  // ICU (5 Beds)
-  { id: 'b-icu-1', bed_number: 'ICU-01', ward_id: 'w-icu', room_type: 'ICU Ventilator', daily_rate: 4500, status: 'occupied' },
+  // ICU (5 Beds - All Vacant)
+  { id: 'b-icu-1', bed_number: 'ICU-01', ward_id: 'w-icu', room_type: 'ICU Ventilator', daily_rate: 4500, status: 'vacant' },
   { id: 'b-icu-2', bed_number: 'ICU-02', ward_id: 'w-icu', room_type: 'ICU Ventilator', daily_rate: 4500, status: 'vacant' },
-  { id: 'b-icu-3', bed_number: 'ICU-03', ward_id: 'w-icu', room_type: 'ICU Monitor', daily_rate: 4000, status: 'occupied' },
+  { id: 'b-icu-3', bed_number: 'ICU-03', ward_id: 'w-icu', room_type: 'ICU Monitor', daily_rate: 4000, status: 'vacant' },
   { id: 'b-icu-4', bed_number: 'ICU-04', ward_id: 'w-icu', room_type: 'ICU Monitor', daily_rate: 4000, status: 'vacant' },
-  { id: 'b-icu-5', bed_number: 'ICU-05', ward_id: 'w-icu', room_type: 'ICU Stepdown', daily_rate: 3500, status: 'cleaning' },
+  { id: 'b-icu-5', bed_number: 'ICU-05', ward_id: 'w-icu', room_type: 'ICU Stepdown', daily_rate: 3500, status: 'vacant' },
 
-  // FGW (13 Beds)
-  { id: 'b-fgw-1', bed_number: 'FGW-01', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'occupied' },
-  { id: 'b-fgw-2', bed_number: 'FGW-02', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'occupied' },
+  // FGW (13 Beds - All Vacant)
+  { id: 'b-fgw-1', bed_number: 'FGW-01', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
+  { id: 'b-fgw-2', bed_number: 'FGW-02', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-3', bed_number: 'FGW-03', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-4', bed_number: 'FGW-04', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-5', bed_number: 'FGW-05', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
-  { id: 'b-fgw-6', bed_number: 'FGW-06', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'occupied' },
+  { id: 'b-fgw-6', bed_number: 'FGW-06', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-7', bed_number: 'FGW-07', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-8', bed_number: 'FGW-08', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-9', bed_number: 'FGW-09', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
@@ -74,147 +74,30 @@ export const initialBeds: Bed[] = [
   { id: 'b-fgw-12', bed_number: 'FGW-12', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-fgw-13', bed_number: 'FGW-13', ward_id: 'w-fgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
 
-  // MGW (6 Beds)
-  { id: 'b-mgw-1', bed_number: 'MGW-01', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'occupied' },
+  // MGW (6 Beds - All Vacant)
+  { id: 'b-mgw-1', bed_number: 'MGW-01', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-mgw-2', bed_number: 'MGW-02', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-mgw-3', bed_number: 'MGW-03', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
-  { id: 'b-mgw-4', bed_number: 'MGW-04', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'occupied' },
+  { id: 'b-mgw-4', bed_number: 'MGW-04', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
   { id: 'b-mgw-5', bed_number: 'MGW-05', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
-  { id: 'b-mgw-6', bed_number: 'MGW-06', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'cleaning' },
+  { id: 'b-mgw-6', bed_number: 'MGW-06', ward_id: 'w-mgw', room_type: 'General Bed', daily_rate: 1200, status: 'vacant' },
 
-  // Private (3 Rooms)
+  // Private (3 Rooms - All Vacant)
   { id: 'b-pvt-1', bed_number: 'PVT-01', ward_id: 'w-pvt', room_type: 'Private Single Room', daily_rate: 2800, status: 'vacant' },
-  { id: 'b-pvt-2', bed_number: 'PVT-02', ward_id: 'w-pvt', room_type: 'Private Single Room', daily_rate: 2800, status: 'occupied' },
+  { id: 'b-pvt-2', bed_number: 'PVT-02', ward_id: 'w-pvt', room_type: 'Private Single Room', daily_rate: 2800, status: 'vacant' },
   { id: 'b-pvt-3', bed_number: 'PVT-03', ward_id: 'w-pvt', room_type: 'Private Single Room', daily_rate: 2800, status: 'vacant' },
 
-  // Deluxe (4 Rooms)
-  { id: 'b-dlx-1', bed_number: 'DLX-01', ward_id: 'w-dlx', room_type: 'Deluxe Suite', daily_rate: 4500, status: 'occupied' },
+  // Deluxe (4 Rooms - All Vacant)
+  { id: 'b-dlx-1', bed_number: 'DLX-01', ward_id: 'w-dlx', room_type: 'Deluxe Suite', daily_rate: 4500, status: 'vacant' },
   { id: 'b-dlx-2', bed_number: 'DLX-02', ward_id: 'w-dlx', room_type: 'Deluxe Suite', daily_rate: 4500, status: 'vacant' },
   { id: 'b-dlx-3', bed_number: 'DLX-03', ward_id: 'w-dlx', room_type: 'Deluxe Suite', daily_rate: 4500, status: 'vacant' },
   { id: 'b-dlx-4', bed_number: 'DLX-04', ward_id: 'w-dlx', room_type: 'Deluxe Suite', daily_rate: 4500, status: 'vacant' },
 
-  // Pre-Op (2 Beds)
+  // Pre-Op (2 Beds - All Vacant)
   { id: 'b-pre-1', bed_number: 'PRE-01', ward_id: 'w-pre', room_type: 'Pre-Op Holding Bed', daily_rate: 1500, status: 'vacant' },
   { id: 'b-pre-2', bed_number: 'PRE-02', ward_id: 'w-pre', room_type: 'Pre-Op Holding Bed', daily_rate: 1500, status: 'vacant' },
 ];
 
-export const initialPatients: Patient[] = [
-  {
-    id: 'p-1',
-    uhid: 'UHID-8921',
-    full_name: 'Rameshwar Sharma',
-    age: 58,
-    gender: 'male',
-    mobile: '9827011223',
-    guardian_name: 'Sunil Sharma (Son)',
-    guardian_mobile: '9827099887',
-    address: 'Sector 4, Main Road, City',
-  },
-  {
-    id: 'p-2',
-    uhid: 'UHID-8922',
-    full_name: 'Sunita Devi Patel',
-    age: 44,
-    gender: 'female',
-    mobile: '9425033445',
-    guardian_name: 'Rajesh Patel (Husband)',
-    guardian_mobile: '9425011223',
-    address: 'Near Old Bus Stand',
-  },
-  {
-    id: 'p-3',
-    uhid: 'UHID-8923',
-    full_name: 'Amitabh Sengupta',
-    age: 62,
-    gender: 'male',
-    mobile: '9893044556',
-    guardian_name: 'Priya Sengupta (Wife)',
-    guardian_mobile: '9893011223',
-    address: 'Green Park Colony',
-  },
-  {
-    id: 'p-4',
-    uhid: 'UHID-8924',
-    full_name: 'Anjali Deshmukh',
-    age: 29,
-    gender: 'female',
-    mobile: '9752099112',
-    guardian_name: 'Vikas Deshmukh (Brother)',
-    guardian_mobile: '9752099113',
-    address: 'Civil Lines, Block B',
-  },
-  {
-    id: 'p-5',
-    uhid: 'UHID-8925',
-    full_name: 'Mahesh Chaurasia',
-    age: 51,
-    gender: 'male',
-    mobile: '9630044112',
-    guardian_name: 'Deepak Chaurasia (Son)',
-    guardian_mobile: '9630044113',
-    address: 'Kolar Road',
-  },
-];
+export const initialPatients: Patient[] = [];
 
-export const initialAdmissions: Admission[] = [
-  {
-    id: 'adm-1',
-    admission_number: 'IPD-2025-0101',
-    patient_id: 'p-1',
-    bed_id: 'b-icu-1',
-    ward_id: 'w-icu',
-    admitting_doctor: 'Dr. Sharma (Cardio)',
-    provisional_diagnosis: 'Acute Coronary Syndrome / Observation',
-    admission_date: '2025-03-20T10:30:00Z',
-    status: 'admitted',
-    notes: 'Keep on continuous vitals monitor & O2 support.',
-  },
-  {
-    id: 'adm-2',
-    admission_number: 'IPD-2025-0102',
-    patient_id: 'p-2',
-    bed_id: 'b-fgw-2',
-    ward_id: 'w-fgw',
-    admitting_doctor: 'Dr. Verma (Medicine)',
-    provisional_diagnosis: 'Severe Dehydration & Viral Pyrexia',
-    admission_date: '2025-03-21T14:15:00Z',
-    status: 'admitted',
-    notes: 'IV fluids running 100ml/hr. Daily CBC monitoring.',
-  },
-  {
-    id: 'adm-3',
-    admission_number: 'IPD-2025-0103',
-    patient_id: 'p-3',
-    bed_id: 'b-mgw-1',
-    ward_id: 'w-mgw',
-    admitting_doctor: 'Dr. Gupta (Surgery)',
-    provisional_diagnosis: 'Post-op Inguinal Hernia Repair',
-    admission_date: '2025-03-22T08:00:00Z',
-    status: 'admitted',
-    notes: 'Dressing stable, oral liquids started.',
-  },
-  {
-    id: 'adm-4',
-    admission_number: 'IPD-2025-0104',
-    patient_id: 'p-4',
-    bed_id: 'b-pvt-2',
-    ward_id: 'w-pvt',
-    admitting_doctor: 'Dr. Neha Kulkarni (Gynae)',
-    provisional_diagnosis: 'Post-Delivery Maternity Recovery',
-    admission_date: '2025-03-21T22:45:00Z',
-    status: 'admitted',
-    notes: 'Mother and neonate both stable in private suite.',
-  },
-  {
-    id: 'adm-5',
-    admission_number: 'IPD-2025-0105',
-    patient_id: 'p-5',
-    bed_id: 'b-dlx-1',
-    ward_id: 'w-dlx',
-    admitting_doctor: 'Dr. Alexander (Chief)',
-    provisional_diagnosis: 'Executive Health Recovery / Renal Care',
-    admission_date: '2025-03-22T11:20:00Z',
-    status: 'admitted',
-    notes: 'Deluxe suite setup. Dietitian consultation requested.',
-  },
-];
+export const initialAdmissions: Admission[] = [];

@@ -205,16 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </a>
         </div>
 
-        <button
-          onClick={() => {
-            if (confirm('Reset to standard demo hospital data (6 Wards, 33 Beds)?')) {
-              DataService.resetToDemo();
-            }
-          }}
-          className="w-full text-center text-[11px] text-slate-400 hover:text-slate-600 flex items-center justify-center gap-1.5 py-1"
-        >
-          <RefreshCw className="w-3 h-3" /> Reset Demo Data
-        </button>
+        
       </div>
     </aside>
   );

@@ -230,6 +230,31 @@ export default function DashboardPage() {
         </section>
 
         {/* ROLE SPECIFIC PRIORITY ACTIONS / ALERTS */}
+        {/* FRESH HOSPITAL START BANNER */}
+        {occupiedCount === 0 && (
+          <div className="bg-gradient-to-r from-emerald-500/10 via-blue-50/60 to-white border border-emerald-200/90 p-4 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black shadow-md shadow-emerald-500/20">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-slate-900">
+                  Fresh Hospital Deployment Active
+                </h4>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  All {beds.length} beds across {wards.length} wards are sanitized, vacant, and ready for real-time patient intake.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/admit"
+              className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto shrink-0 shadow-md shadow-brand-500/25"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Admit First Patient (Step 1 &amp; 2)</span>
+            </Link>
+          </div>
+        )}
         {role === 'Nurse' && cleaningCount > 0 && (
           <div className="bg-amber-500/10 border border-amber-300/80 p-3.5 rounded-3xl flex items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-2.5">

@@ -44,13 +44,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoSelect = (role: StaffRole, email: string, sector: string) => {
-    setSelectedRole(role);
-    setStaffId(email);
-    setSelectedSector(sector);
-    setPassword('WardAlpha2024!');
-  };
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -218,35 +212,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Demo 1-Tap Pills */}
-          <div className="bg-blue-50/50 p-2.5 rounded-2xl border border-blue-100/60">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block mb-1">
-              One-Click Demo Roles:
-            </span>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('Doctor', 'alexander.m@bedpulse.health', 'ICU / Critical Care')}
-                className="px-2 py-0.5 rounded-lg bg-white border border-blue-200 text-[10px] font-semibold text-slate-700 hover:border-brand-500 transition"
-              >
-                Dr. Alexander (Cardio)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('Nurse', 'priya.nurse@bedpulse.health', 'General Medical Ward')}
-                className="px-2 py-0.5 rounded-lg bg-white border border-blue-200 text-[10px] font-semibold text-slate-700 hover:border-brand-500 transition"
-              >
-                Sister Priya (ICU Nurse)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoSelect('Admin', 'admin@bedpulse.health', 'All Wards')}
-                className="px-2 py-0.5 rounded-lg bg-white border border-blue-200 text-[10px] font-semibold text-slate-700 hover:border-brand-500 transition"
-              >
-                Admin Office
-              </button>
-            </div>
-          </div>
+          
 
           <button
             type="submit"
