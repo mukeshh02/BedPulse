@@ -1,10 +1,14 @@
 'use client';
+import {usePullRefresh} from '@/components/PullToRefresh';
+import { DataSkeleton } from '@/components/LoadingFeedback';
+import { startNavigation, ButtonSpinner } from '@/components/LoadingFeedback';
+
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Ward, Bed, BedStatus } from '@/types';
 import { DataService } from '@/lib/supabase';
-import { AppShell } from '@/components/AppShell';
 import {
   Sliders,
   BedDouble,
@@ -28,6 +32,13 @@ import { AuthService, ActiveStaff } from '@/lib/auth';
 import { ArrowRight } from 'lucide-react';
 
 export default function WardMasterPage() {
+  const router = useRouter();
+
+ usePullRefresh(() => loadData());
+  useEffect(() => {
+    (startNavigation(), router.replace)('/settings?tab=wards');
+  }, [router]);
+
   const [wards, setWards] = useState<Ward[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +54,7 @@ export default function WardMasterPage() {
   const [wardFloor, setWardFloor] = useState('1st Floor');
   const [wardDepartment, setWardDepartment] = useState('General Medicine');
   const [wardBaseRate, setWardBaseRate] = useState<number | ''>(2000);
-  const [wardColor, setWardColor] = useState('#1D77FF');
+  const [wardColor, setWardColor] = useState('#183E33');
 
   // Add Bed Form State
   const [newBedWardId, setNewBedWardId] = useState('');
@@ -185,21 +196,23 @@ export default function WardMasterPage() {
     }
   };
 
+  if (loading) return <><DataSkeleton /></>;
+
   return (
-    <AppShell>
+    <>
       <div className="space-y-6">
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 md:p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_20px_rgba(29,119,255,0.04)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 md:p-6 rounded-3xl border border-brand-50/80 shadow-[0_4px_20px_rgba(24,62,51,0.04)]">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 shadow-sm shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600 shadow-sm shrink-0">
               <Sliders className="w-6 h-6 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">
-                  Ward &amp; Bed Master Studio
+                <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+                  Manage wards &amp; beds
                 </h1>
-                <span className="bg-purple-50 text-purple-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-purple-200">
+                <span className="bg-brand-50 text-brand-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-brand-200">
                   Dynamic Capacity Engine
                 </span>
               </div>
@@ -229,31 +242,21 @@ export default function WardMasterPage() {
 
         {/* ROLE PERMISSION NOTICE IF NOT ADMIN */}
         {staff && staff.role !== 'Admin' && (
-          <div className="bg-purple-50/80 border border-purple-200 p-4 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="bg-brand-50/80 border border-brand-200 p-4 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black shrink-0 text-xs shadow-sm">
+              <div className="w-9 h-9 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-semibold shrink-0 text-xs shadow-sm">
                 ADM
               </div>
               <div>
-                <h4 className="font-black text-purple-900">
-                  Ward Master Studio is in Administrator Mode
+                <h4 className="font-semibold text-brand-900">
+                  Ward management is in Administrator Mode
                 </h4>
-                <p className="text-purple-700 text-[11px] mt-0.5">
-                  You are currently logged in as <strong className="text-purple-900">{staff.name}</strong> ({staff.role}). You have full preview access.
+                <p className="text-brand-700 text-[11px] mt-0.5">
+                  You are currently logged in as <strong className="text-brand-900">{staff.name}</strong> ({staff.role}). You have full preview access.
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                const updated = AuthService.switchRole('Admin');
-                setStaff(updated);
-              }}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto shrink-0 shadow-xs"
-            >
-              <span>Switch to Hospital Admin</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+
           </div>
         )}
 
@@ -273,12 +276,12 @@ export default function WardMasterPage() {
         )}
 
         {/* NAVIGATION TABS */}
-        <div className="bg-white p-2 rounded-3xl border border-blue-50/80 shadow-sm flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        <div className="bg-white p-2 rounded-3xl border border-brand-50/80 shadow-sm flex items-center gap-1.5 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('beds')}
             className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
               activeTab === 'beds'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
                 : 'text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -290,7 +293,7 @@ export default function WardMasterPage() {
             onClick={() => setActiveTab('wards')}
             className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
               activeTab === 'wards'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
                 : 'text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -302,8 +305,8 @@ export default function WardMasterPage() {
             onClick={() => setActiveTab('addBed')}
             className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
               activeTab === 'addBed'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
-                : 'text-purple-600 hover:bg-purple-50'
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
+                : 'text-brand-600 hover:bg-brand-50'
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -314,8 +317,8 @@ export default function WardMasterPage() {
             onClick={() => setActiveTab('addWard')}
             className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
               activeTab === 'addWard'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
-                : 'text-purple-600 hover:bg-purple-50'
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
+                : 'text-brand-600 hover:bg-brand-50'
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -327,7 +330,7 @@ export default function WardMasterPage() {
         {activeTab === 'beds' && (
           <div className="space-y-4">
             {/* Filter & Search Bar */}
-            <div className="bg-white p-4 rounded-3xl border border-blue-50/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="bg-white p-4 rounded-3xl border border-brand-50/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <span className="text-xs font-bold text-slate-400">Ward:</span>
                 <select
@@ -354,13 +357,13 @@ export default function WardMasterPage() {
                   value={bedSearch}
                   onChange={(e) => setBedSearch(e.target.value)}
                   placeholder="Search bed number..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
 
             {/* Beds Table / Grid */}
-            <div className="bg-white rounded-3xl border border-blue-50/80 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-3xl border border-brand-50/80 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50/70 text-slate-400 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
@@ -380,7 +383,7 @@ export default function WardMasterPage() {
                       return (
                         <tr key={bed.id} className="hover:bg-slate-50/50 transition">
                           <td className="p-4">
-                            <span className="font-mono font-black text-slate-900 text-sm flex items-center gap-2">
+                            <span className="font-mono font-semibold text-slate-900 text-sm flex items-center gap-2">
                               <BedDouble className="w-4 h-4 text-brand-500" />
                               {bed.bed_number}
                             </span>
@@ -398,12 +401,12 @@ export default function WardMasterPage() {
                           <td className="p-4">
                             <div className="flex items-center gap-1 flex-wrap">
                               {bed.has_oxygen && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 border border-brand-100">
                                   O₂
                                 </span>
                               )}
                               {bed.has_ventilator && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-100">
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 border border-brand-100">
                                   VENT
                                 </span>
                               )}
@@ -436,7 +439,7 @@ export default function WardMasterPage() {
                             <select
                               value={bed.status}
                               onChange={(e) => handleStatusChange(bed.id, e.target.value as BedStatus)}
-                              className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500"
                             >
                               <option value="vacant">Set Vacant</option>
                               <option value="occupied">Set Occupied</option>
@@ -465,13 +468,13 @@ export default function WardMasterPage() {
               return (
                 <div
                   key={ward.id}
-                  className="bg-white rounded-3xl p-5 border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] space-y-4"
+                  className="bg-white rounded-3xl p-5 border border-brand-50/80 shadow-[0_4px_25px_rgba(24,62,51,0.04)] space-y-4"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-10 h-10 rounded-2xl text-white font-black text-sm flex items-center justify-center shadow-sm"
-                        style={{ backgroundColor: ward.color_accent || '#1D77FF' }}
+                        className="w-10 h-10 rounded-2xl text-white font-semibold text-sm flex items-center justify-center shadow-sm"
+                        style={{ backgroundColor: ward.color_accent || '#183E33' }}
                       >
                         {ward.code || ward.name.substring(0, 3).toUpperCase()}
                       </div>
@@ -483,7 +486,7 @@ export default function WardMasterPage() {
                       </div>
                     </div>
 
-                    <span className="text-xs font-mono font-bold text-brand-600 bg-blue-50 px-2 py-0.5 rounded-xl border border-blue-100">
+                    <span className="text-xs font-mono font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-xl border border-brand-100">
                       ₹{ward.base_price_per_day || 2000}/d
                     </span>
                   </div>
@@ -491,15 +494,15 @@ export default function WardMasterPage() {
                   <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl text-center text-xs">
                     <div>
                       <span className="text-[10px] font-bold text-slate-400 block uppercase">CAPACITY</span>
-                      <span className="font-black text-slate-900 text-sm">{wardBeds.length} Beds</span>
+                      <span className="font-semibold text-slate-900 text-sm">{wardBeds.length} Beds</span>
                     </div>
                     <div>
                       <span className="text-[10px] font-bold text-brand-600 block uppercase">OCCUPIED</span>
-                      <span className="font-black text-brand-600 text-sm">{occBeds}</span>
+                      <span className="font-semibold text-brand-600 text-sm">{occBeds}</span>
                     </div>
                     <div>
                       <span className="text-[10px] font-bold text-emerald-600 block uppercase">VACANT</span>
-                      <span className="font-black text-emerald-600 text-sm">{vacBeds}</span>
+                      <span className="font-semibold text-emerald-600 text-sm">{vacBeds}</span>
                     </div>
                   </div>
 
@@ -509,7 +512,7 @@ export default function WardMasterPage() {
                         setNewBedWardId(ward.id);
                         setActiveTab('addBed');
                       }}
-                      className="w-full py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
+                      className="w-full py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       Add Bed to this Ward
@@ -523,10 +526,10 @@ export default function WardMasterPage() {
 
         {/* TAB 3: ADD NEW BED */}
         {activeTab === 'addBed' && (
-          <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] space-y-6">
+          <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl border border-brand-50/80 shadow-[0_4px_25px_rgba(24,62,51,0.04)] space-y-6">
             <div className="border-b border-slate-100 pb-4">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Plus className="w-5 h-5 text-brand-600" />
                 Add Bed to Hospital Ward
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -543,7 +546,7 @@ export default function WardMasterPage() {
                   required
                   value={newBedWardId}
                   onChange={(e) => setNewBedWardId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold"
                 >
                   {wards.map((w) => (
                     <option key={w.id} value={w.id}>
@@ -564,7 +567,7 @@ export default function WardMasterPage() {
                     value={newBedNumber}
                     onChange={(e) => setNewBedNumber(e.target.value)}
                     placeholder="e.g. ICU-06 or MGW-14"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono font-bold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono font-bold"
                   />
                 </div>
 
@@ -578,7 +581,7 @@ export default function WardMasterPage() {
                     value={newBedRate}
                     onChange={(e) => setNewBedRate(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="2500"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold"
                   />
                 </div>
               </div>
@@ -590,7 +593,7 @@ export default function WardMasterPage() {
                 <select
                   value={newBedType}
                   onChange={(e) => setNewBedType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
                 >
                   <option value="Standard General">Standard General Bed</option>
                   <option value="ICU Ventilator">ICU Ventilator Bed</option>
@@ -611,7 +614,7 @@ export default function WardMasterPage() {
                     type="checkbox"
                     checked={hasOxygen}
                     onChange={(e) => setHasOxygen(e.target.checked)}
-                    className="accent-purple-600 w-4 h-4 rounded"
+                    className="accent-brand-600 w-4 h-4 rounded"
                   />
                   <span>Central Piped Oxygen Port (O₂)</span>
                 </label>
@@ -620,7 +623,7 @@ export default function WardMasterPage() {
                     type="checkbox"
                     checked={hasVentilator}
                     onChange={(e) => setHasVentilator(e.target.checked)}
-                    className="accent-purple-600 w-4 h-4 rounded"
+                    className="accent-brand-600 w-4 h-4 rounded"
                   />
                   <span>Mechanical Ventilator Attached (VENT)</span>
                 </label>
@@ -629,7 +632,7 @@ export default function WardMasterPage() {
                     type="checkbox"
                     checked={hasMonitor}
                     onChange={(e) => setHasMonitor(e.target.checked)}
-                    className="accent-purple-600 w-4 h-4 rounded"
+                    className="accent-brand-600 w-4 h-4 rounded"
                   />
                   <span>Multi-para Cardiac Monitor Attached (MONITOR)</span>
                 </label>
@@ -638,8 +641,8 @@ export default function WardMasterPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-purple-600/25"
-              >
+                className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-brand-600/25"
+              >{isSubmitting && <ButtonSpinner />}
                 {isSubmitting ? (
                   <span>Saving to Bed Inventory...</span>
                 ) : (
@@ -655,10 +658,10 @@ export default function WardMasterPage() {
 
         {/* TAB 4: CREATE NEW WARD */}
         {activeTab === 'addWard' && (
-          <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] space-y-6">
+          <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl border border-brand-50/80 shadow-[0_4px_25px_rgba(24,62,51,0.04)] space-y-6">
             <div className="border-b border-slate-100 pb-4">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-brand-600" />
                 Establish New Hospital Ward / Wing
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -678,7 +681,7 @@ export default function WardMasterPage() {
                     value={wardName}
                     onChange={(e) => setWardName(e.target.value)}
                     placeholder="e.g. Pediatric Intensive Care"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold"
                   />
                 </div>
                 <div>
@@ -692,7 +695,7 @@ export default function WardMasterPage() {
                     value={wardCode}
                     onChange={(e) => setWardCode(e.target.value.toUpperCase())}
                     placeholder="PICU"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono font-bold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono font-bold"
                   />
                 </div>
               </div>
@@ -708,7 +711,7 @@ export default function WardMasterPage() {
                     value={wardFloor}
                     onChange={(e) => setWardFloor(e.target.value)}
                     placeholder="e.g. 3rd Floor East Wing"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
 
@@ -722,7 +725,7 @@ export default function WardMasterPage() {
                     value={wardBaseRate}
                     onChange={(e) => setWardBaseRate(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="3000"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold"
+                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold"
                   />
                 </div>
               </div>
@@ -736,15 +739,15 @@ export default function WardMasterPage() {
                   value={wardDepartment}
                   onChange={(e) => setWardDepartment(e.target.value)}
                   placeholder="e.g. Pediatrics / Neonatal"
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-purple-600/25"
-              >
+                className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-brand-600/25"
+              >{isSubmitting && <ButtonSpinner />}
                 {isSubmitting ? (
                   <span>Establishing Ward...</span>
                 ) : (
@@ -758,6 +761,6 @@ export default function WardMasterPage() {
           </div>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }

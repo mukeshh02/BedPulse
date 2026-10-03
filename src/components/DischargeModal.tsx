@@ -1,5 +1,7 @@
 'use client';
+import { ButtonSpinner } from '@/components/LoadingFeedback';
 
+import { HospitalService } from '@/lib/hospital';
 import React, { useState } from 'react';
 import { Bed, Admission } from '@/types';
 import { DataService } from '@/lib/supabase';
@@ -79,7 +81,7 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-xl border border-blue-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-3xl w-full max-w-xl border border-brand-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -113,7 +115,7 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
             {/* Printable summary box */}
             <div className="p-4 rounded-2xl border border-slate-200 space-y-2 bg-slate-50 font-sans print:border-none print:p-0">
               <div className="border-b border-slate-200 pb-2">
-                <h5 className="font-extrabold text-sm text-slate-800">BedPulse™ Clinical Discharge Slip</h5>
+                <h5 className="font-extrabold text-sm text-slate-800">{HospitalService.current()?.hospital.name || 'Hospital'}</h5>
                 <p className="text-[10px] text-slate-400">Developed by WebVission | Support: +91 7000371321</p>
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -166,7 +168,7 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-bold text-slate-400">Current Bed</span>
-                <p className="text-sm font-black text-slate-800">{currentBed?.bed_number}</p>
+                <p className="text-sm font-semibold text-slate-800">{currentBed?.bed_number}</p>
               </div>
             </div>
 
@@ -194,7 +196,7 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
                   onClick={() => setDischargeType('referred')}
                   className={`p-2.5 rounded-2xl border transition text-center font-bold flex flex-col items-center gap-1 ${
                     dischargeType === 'referred'
-                      ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
+                      ? 'bg-brand-600 text-white border-brand-700 shadow-sm'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
@@ -219,8 +221,8 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
 
             {/* If Referred: Destination Hospital */}
             {dischargeType === 'referred' && (
-              <div className="p-3.5 bg-blue-50/60 rounded-2xl border border-blue-200">
-                <label className="block text-blue-900 font-bold mb-1">
+              <div className="p-3.5 bg-brand-50/60 rounded-2xl border border-brand-200">
+                <label className="block text-brand-900 font-bold mb-1">
                   Referred To (Destination Hospital) *
                 </label>
                 <input
@@ -229,7 +231,7 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
                   placeholder="e.g. AIIMS / City Multi-Specialty Hospital"
                   value={destinationHospital}
                   onChange={(e) => setDestinationHospital(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-blue-200 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 rounded-xl border border-brand-200 bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none"
                 />
               </div>
             )}
@@ -287,7 +289,7 @@ export const DischargeModal: React.FC<DischargeModalProps> = ({
                 type="submit"
                 disabled={isSubmitting}
                 className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-2xl font-bold shadow-md shadow-emerald-600/20 transition flex items-center gap-2"
-              >
+              >{isSubmitting && <ButtonSpinner />}
                 {isSubmitting ? (
                   <span>Processing Discharge...</span>
                 ) : (

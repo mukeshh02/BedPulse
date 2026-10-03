@@ -23,7 +23,7 @@ export const initialWards: Ward[] = [
     code: 'MGW',
     description: 'Inpatient recovery for male patients',
     floor: '1st Floor',
-    color_accent: '#3B82F6',
+    color_accent: '#789986',
   },
   {
     id: 'w-pvt',
@@ -31,7 +31,7 @@ export const initialWards: Ward[] = [
     code: 'PVT',
     description: 'Single-occupancy private recovery rooms',
     floor: '2nd Floor',
-    color_accent: '#8B5CF6',
+    color_accent: '#63816C',
   },
   {
     id: 'w-dlx',
@@ -47,7 +47,7 @@ export const initialWards: Ward[] = [
     code: 'PRE',
     description: 'Pre-surgical preparation and observation beds',
     floor: 'Ground Floor OT Wing',
-    color_accent: '#06B6D4',
+    color_accent: '#91AD97',
   },
 ];
 

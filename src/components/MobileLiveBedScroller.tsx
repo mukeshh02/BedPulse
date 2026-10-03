@@ -45,7 +45,7 @@ export const MobileLiveBedScroller: React.FC<MobileLiveBedScrollerProps> = ({
             <div
               key={bed.id}
               onClick={() => onSelectBed(bed)}
-              className="snap-start shrink-0 w-44 bg-white p-3 rounded-2xl shadow-[0_4px_16px_rgba(29,119,255,0.05)] border border-blue-50/80 flex flex-col justify-between space-y-2 cursor-pointer hover:border-brand-300 transition"
+              className="snap-start shrink-0 w-44 bg-white p-3 rounded-2xl shadow-[0_4px_16px_rgba(24,62,51,0.05)] border border-brand-50/80 flex flex-col justify-between space-y-2 cursor-pointer hover:border-brand-300 transition"
             >
               {/* Header */}
               <div className="flex items-center justify-between">

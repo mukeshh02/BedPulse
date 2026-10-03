@@ -9,4 +9,11 @@ const supabaseKey =
   'sb_publishable_22DU98_EynLFveOUW8B50g_c_2b-LIB';
 
 export const createClient = () =>
-  createBrowserClient(supabaseUrl, supabaseKey);
+  createBrowserClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+    cookieOptions: { maxAge: 60 * 60 * 24 * 365, sameSite: 'lax', path: '/' },
+  });

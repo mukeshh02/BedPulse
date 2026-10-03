@@ -1,0 +1,12 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {usePathname,useSearchParams} from 'next/navigation';
+export function startNavigation(){if(typeof window!=='undefined')window.dispatchEvent(new Event('bedpulse_navigation_start'));}
+export function NavigationProgress(){
+ const pathname=usePathname();const params=useSearchParams();const [active,setActive]=useState(false);
+ useEffect(()=>{setActive(false);},[pathname,params]);
+ useEffect(()=>{let timeout:ReturnType<typeof setTimeout>;const start=()=>{setActive(true);clearTimeout(timeout);timeout=setTimeout(()=>setActive(false),15000);};const click=(event:MouseEvent)=>{if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;const link=(event.target as HTMLElement).closest('a');if(!link||link.target==='_blank'||link.hasAttribute('download'))return;const url=new URL(link.href,location.href);if(url.origin===location.origin&&(url.pathname!==location.pathname||url.search!==location.search))start();};window.addEventListener('bedpulse_navigation_start',start);document.addEventListener('click',click);window.addEventListener('popstate',start);return()=>{clearTimeout(timeout);window.removeEventListener('bedpulse_navigation_start',start);document.removeEventListener('click',click);window.removeEventListener('popstate',start);};},[]);
+ return active?<div role="progressbar" aria-label="Opening page" className="fixed inset-x-0 top-0 h-[3px] z-[100] bg-brand-100 overflow-hidden"><div className="navigation-progress h-full bg-brand-600"/></div>:null;
+}
+export function ButtonSpinner(){return <span aria-hidden="true" className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border-2 border-current border-r-transparent animate-spin align-middle"/>;}
+export function DataSkeleton(){return <section role="status" aria-label="Loading data" className="space-y-5"><span className="sr-only">Loading data…</span><div className="grid grid-cols-2 lg:grid-cols-4 gap-4">{Array.from({length:4},(_,i)=><div key={i} className="bg-white border border-brand-100 rounded-2xl p-5 space-y-4"><div className="skeleton h-3 w-24 rounded"/><div className="skeleton h-8 w-12 rounded"/></div>)}</div><div className="bg-white border border-brand-100 rounded-2xl p-5 space-y-4"><div className="skeleton h-5 w-40 rounded"/><div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">{Array.from({length:8},(_,i)=><div key={i} className="skeleton h-24 rounded-xl"/>)}</div></div></section>;}

@@ -1,4 +1,6 @@
 'use client';
+import { startNavigation } from '@/components/LoadingFeedback';
+
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -26,7 +28,9 @@ import {
   Stethoscope,
   ChevronDown,
   ArrowRight,
+  Settings,
 } from 'lucide-react';
+import { HospitalService } from '@/lib/hospital';
 import { DataService } from '@/lib/supabase';
 import { AuthService, ActiveStaff, StaffRole, defaultDoctor, defaultNurse, defaultAdmin } from '@/lib/auth';
 
@@ -45,54 +49,60 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
 
   // Active staff state
+  const [authChecked, setAuthChecked] = useState(false);
   const [staff, setStaff] = useState<ActiveStaff | null>(propStaff || null);
 
   useEffect(() => {
-    if (propStaff) {
-      setStaff(propStaff);
-    } else {
-      setStaff(AuthService.getCurrentStaff());
+    void AuthService.refresh().then(current => {
+    if (!current) {
+      (startNavigation(), router.replace)('/setup');
+      return;
     }
+    setStaff(current);
+    setAuthChecked(true);
+    }).catch(() => (startNavigation(), router.replace)('/setup'));
 
     const handleAuthChange = () => {
-      setStaff(AuthService.getCurrentStaff());
+      const updated = AuthService.getCurrentStaff();
+      if (!updated) {
+        (startNavigation(), router.replace)('/');
+      } else {
+        setStaff(updated);
+      }
     };
 
     window.addEventListener('auth_change', handleAuthChange);
-    window.addEventListener('storage', handleAuthChange);
+    const handleStorage = (event: StorageEvent) => { if(event.key?.includes('auth-token')) void AuthService.refresh().then(handleAuthChange).catch(() => {}); };
+    window.addEventListener('storage', handleStorage);
     return () => {
       window.removeEventListener('auth_change', handleAuthChange);
-      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('storage', handleStorage);
     };
-  }, [propStaff]);
+  }, [propStaff, router]);
 
   const currentDate = new Date().toLocaleDateString('en-IN', {
+    timeZone: 'Asia/Kolkata',
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
-  const currentDay = new Date().toLocaleDateString('en-IN', { weekday: 'long' });
+  const currentDay = new Date().toLocaleDateString('en-IN', { weekday: 'long', timeZone: 'Asia/Kolkata' });
+  const mobileDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' });
+  const mobileDay = new Date().toLocaleDateString('en-IN', { weekday: 'short', timeZone: 'Asia/Kolkata' });
 
   useEffect(() => {
     DataService.getBeds().then((beds) => {
       setTotalBeds(beds.length);
       setTotalOccupied(beds.filter((b) => b.status === 'occupied').length);
-    });
+    }).catch(() => {});
   }, [pathname]);
 
-  const handleSwitchRole = (role: StaffRole) => {
-    const updated = AuthService.switchRole(role);
-    setStaff(updated);
-    setRoleMenuOpen(false);
+  const handleLogout = async () => {
+    await AuthService.logout();
+    (startNavigation(), router.push)('/login');
   };
 
-  const handleLogout = () => {
-    AuthService.logout();
-    setStaff(null);
-    router.push('/');
-  };
-
-  const navLinks = [
+  const allNavLinks = [
     {
       href: '/dashboard',
       label: 'Overview',
@@ -105,7 +115,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
       label: 'Patient Admission',
       icon: UserPlus,
       badge: 'Step 1 & 2',
-      badgeClass: 'bg-blue-50 text-brand-600 border-blue-100',
+      badgeClass: 'bg-brand-50 text-brand-600 border-brand-100',
       rolePriority: ['Doctor', 'Nurse', 'Admin'],
     },
     {
@@ -141,14 +151,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
       rolePriority: ['Nurse', 'Doctor', 'Admin'],
     },
     {
-      href: '/ward-master',
-      label: 'Ward Master Studio',
-      icon: Sliders,
-      badge: staff?.role === 'Admin' ? 'Admin Master' : 'Preview',
-      badgeClass: staff?.role === 'Admin' ? 'bg-purple-100 text-purple-700 font-black' : 'bg-purple-50 text-purple-600',
-      rolePriority: ['Admin'],
-    },
-    {
       href: '/profile',
       label: staff?.role === 'Doctor' ? 'Doctor Profile' : staff?.role === 'Nurse' ? 'Nurse Profile' : 'Admin Profile',
       icon: User,
@@ -156,36 +158,41 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
       rolePriority: ['Doctor', 'Nurse', 'Admin'],
     },
     {
-      href: '/register',
-      label: 'Staff Onboarding',
-      icon: ShieldCheck,
-      badge: 'Enroll',
-      badgeClass: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-      rolePriority: ['Admin'],
-    },
-    {
-      href: '/login',
-      label: 'Staff Portal / PIN',
-      icon: Lock,
-      badge: 'Auth',
-      badgeClass: 'bg-blue-50 text-brand-600 border-blue-100',
-      rolePriority: [],
+      href: '/settings',
+      label: 'Hospital Settings',
+      icon: Settings,
+      badge: 'Master',
+      badgeClass: 'bg-brand-100 text-brand-700 font-bold border-brand-200',
+      rolePriority: ['Doctor', 'Admin'],
     },
   ];
+
+  const currentRole = staff?.role || 'Doctor';
+  const visibleNavLinks = allNavLinks.filter((link) => link.rolePriority.includes(currentRole));
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/patients?q=${encodeURIComponent(searchQuery.trim())}`);
+      (startNavigation(), router.push)(`/patients?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
   const roleMeta = AuthService.getRoleMeta(staff?.role || 'Doctor');
 
+  if (!authChecked || !staff) {
+    return <div role="status" aria-label="Loading workspace" className="min-h-screen bg-[#F8FAF9] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-5">
+        <div className="flex items-center gap-2.5 text-[#183E33]"><HeartPulse size={26} strokeWidth={1.8} /><span className="text-xl font-semibold tracking-tight">BedPulse</span></div>
+        <span aria-hidden="true" className="h-5 w-5 rounded-full border-2 border-[#DCE7DC] border-t-[#63816C] animate-spin" />
+        <span className="sr-only">Loading workspace…</span>
+      </div>
+    </div>;
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden p-2 sm:p-3 md:p-5 gap-5 font-sans bg-[#F1F6FD] relative">
+    <div className={`flex h-screen overflow-hidden p-2 sm:p-3 md:p-5 gap-5 font-sans bg-[#F8FAF9] relative workspace-theme`}>
       {/* DESKTOP SIDEBAR */}
-      <aside className="w-72 bg-white rounded-3xl p-5 flex flex-col justify-between border border-blue-50/80 shadow-[0_10px_35px_rgba(29,119,255,0.06)] shrink-0 select-none hidden lg:flex">
+      <aside className="w-72 bg-white rounded-3xl p-5 flex flex-col justify-between border border-brand-50/80 shadow-[0_10px_35px_rgba(24,62,51,0.06)] shrink-0 select-none hidden lg:flex">
         <div className="flex flex-col gap-4 overflow-y-auto pr-1">
           {/* Brand Header */}
           <Link href="/dashboard" className="flex items-center gap-3 px-2 pt-1 group">
@@ -195,7 +202,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
-                  BedPulse<span className="text-brand-500">™</span>
+                  {HospitalService.current()?.hospital.name || 'BedPulse'}<span className="text-brand-500">™</span>
                 </h1>
               </div>
               <span className="text-[10px] tracking-wider uppercase font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100/80">
@@ -214,8 +221,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
                   </div>
                 ) : (
                   <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-xs ${
-                      staff?.role === 'Doctor' ? 'bg-brand-500' : staff?.role === 'Nurse' ? 'bg-emerald-500' : 'bg-purple-600'
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-semibold text-white text-xs shadow-xs ${
+                      staff?.role === 'Doctor' ? 'bg-brand-500' : staff?.role === 'Nurse' ? 'bg-emerald-500' : 'bg-brand-600'
                     }`}
                   >
                     {staff?.role === 'Doctor' ? 'MD' : staff?.role === 'Nurse' ? 'RN' : 'ADM'}
@@ -226,16 +233,16 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
 
               <div className="leading-tight min-w-0 flex-1">
                 <h4 className="font-extrabold text-xs text-slate-900 truncate">
-                  {staff?.name || 'Dr. Alexander Wright'}
+                  {staff?.name || 'Medical Staff'}
                 </h4>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span
                     className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded-md ${
                       staff?.role === 'Doctor'
-                        ? 'bg-blue-100/80 text-brand-700'
+                        ? 'bg-brand-100/80 text-brand-700'
                         : staff?.role === 'Nurse'
                         ? 'bg-emerald-100/80 text-emerald-700'
-                        : 'bg-purple-100/80 text-purple-700'
+                        : 'bg-brand-100/80 text-brand-700'
                     }`}
                   >
                     {staff?.role || 'Doctor'}
@@ -245,53 +252,24 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
               </div>
             </div>
 
-            {/* Quick 1-Click Role Switcher */}
-            <div className="pt-2 border-t border-slate-200/70">
-              <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold mb-1 px-0.5 uppercase tracking-wider">
-                <span>Switch Role:</span>
-                <span className="text-slate-500 font-semibold">{staff?.role}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1">
-                <button
-                  type="button"
-                  onClick={() => handleSwitchRole('Doctor')}
-                  className={`py-1 text-[10px] font-extrabold rounded-lg transition ${
-                    staff?.role === 'Doctor'
-                      ? 'bg-brand-500 text-white shadow-2xs'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-300'
-                  }`}
-                >
-                  Doctor
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSwitchRole('Nurse')}
-                  className={`py-1 text-[10px] font-extrabold rounded-lg transition ${
-                    staff?.role === 'Nurse'
-                      ? 'bg-emerald-500 text-white shadow-2xs'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-300'
-                  }`}
-                >
-                  Nurse
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSwitchRole('Admin')}
-                  className={`py-1 text-[10px] font-extrabold rounded-lg transition ${
-                    staff?.role === 'Admin'
-                      ? 'bg-purple-600 text-white shadow-2xs'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-purple-300'
-                  }`}
-                >
-                  Admin
-                </button>
-              </div>
+            {/* Staff Duty Info */}
+            <div className="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px]">
+              <span className="text-slate-500 font-semibold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Active Shift
+              </span>
+              <Link
+                href="/profile"
+                className="text-brand-600 hover:text-brand-700 font-bold hover:underline"
+              >
+                Profile &rarr;
+              </Link>
             </div>
           </div>
 
           {/* Navigation Menu */}
           <nav aria-label="Main Navigation" className="flex flex-col gap-1.5">
-            {navLinks.map((link) => {
+            {visibleNavLinks.map((link) => {
               const Icon = link.icon;
               const isActive = pathname === link.href;
 
@@ -311,7 +289,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
                   </div>
                   {isActive ? (
                     <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                  ) : link.badge ? (
+                  ) : false ? (
                     <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border ${link.badgeClass}`}>
                       {link.badge}
                     </span>
@@ -324,7 +302,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
 
         {/* Support, Logout & Reset Footer */}
         <div className="space-y-2 pt-2 border-t border-slate-100">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-100/70 p-3 rounded-2xl relative overflow-hidden shadow-xs">
+          <div className="bg-gradient-to-br from-brand-50 to-brand-50/60 border border-brand-100/70 p-3 rounded-2xl relative overflow-hidden shadow-xs">
             <div className="flex items-start gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                 +
@@ -346,7 +324,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
               title="Sign Out to Landing Page"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out / Switch Shift</span>
+              <span>Sign out</span>
             </button>
           </div>
         </div>
@@ -359,18 +337,20 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-white border border-blue-100 shadow-sm text-slate-700 hover:bg-slate-50 transition"
+              className="lg:hidden p-2 rounded-xl bg-white border border-brand-100 shadow-sm text-slate-700 hover:bg-slate-50 transition"
               title="Open Navigation Drawer"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="bg-white px-3 py-1.5 rounded-full border border-blue-100/80 shadow-xs flex items-center gap-2 text-xs font-semibold text-slate-700">
+            <div className="bg-white px-2 sm:px-3 py-1.5 rounded-full border border-brand-100/80 shadow-xs flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-slate-700 whitespace-nowrap shrink-0">
               <Calendar className="w-3.5 h-3.5 text-brand-500" />
               <span className="hidden sm:inline">{currentDate}</span>
+              <span className="sm:hidden">{mobileDate}</span>
               <span className="text-slate-300 hidden sm:inline">|</span>
-              <span className="bg-blue-50 text-brand-600 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                {currentDay}
+              <span className="bg-brand-50 text-brand-600 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                <span className="hidden sm:inline">{currentDay}</span>
+                <span className="sm:hidden">{mobileDay}</span>
               </span>
             </div>
           </div>
@@ -384,8 +364,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search patient, UHID, ward, bed... (Press Enter)"
-              className="w-full bg-white pl-10 pr-4 py-2 text-xs rounded-full border border-blue-100/80 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition placeholder:text-slate-400"
+              placeholder="Search patients, wards or beds"
+              className="w-full bg-white pl-10 pr-4 py-2 text-xs rounded-full border border-brand-100/80 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition placeholder:text-slate-400"
             />
           </form>
 
@@ -394,7 +374,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
             <a
               href="tel:+917000371321"
               title="Support Helpline: 7000371321"
-              className="w-9 h-9 rounded-full bg-white border border-blue-100/80 shadow-xs flex items-center justify-center text-slate-600 hover:text-brand-500 hover:shadow-sm transition"
+              className="w-9 h-9 rounded-full bg-white border border-brand-100/80 shadow-xs flex items-center justify-center text-slate-600 hover:text-brand-500 hover:shadow-sm transition"
             >
               <Phone className="w-4 h-4" />
             </a>
@@ -404,18 +384,18 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
               <button
                 type="button"
                 onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-                className="flex items-center gap-2 bg-white pl-1.5 pr-3 py-1 rounded-full border border-blue-100/80 shadow-xs select-none hover:border-brand-300 transition text-left"
+                className="flex items-center gap-2 bg-white pl-1.5 pr-3 py-1 rounded-full border border-brand-100/80 shadow-xs select-none hover:border-brand-300 transition text-left"
               >
                 <div
-                  className={`w-7 h-7 rounded-full text-white flex items-center justify-center font-black text-[11px] shadow-xs ${
-                    staff?.role === 'Doctor' ? 'bg-brand-500' : staff?.role === 'Nurse' ? 'bg-emerald-500' : 'bg-purple-600'
+                  className={`w-7 h-7 rounded-full text-white flex items-center justify-center font-semibold text-[11px] shadow-xs ${
+                    staff?.role === 'Doctor' ? 'bg-brand-500' : staff?.role === 'Nurse' ? 'bg-emerald-500' : 'bg-brand-600'
                   }`}
                 >
                   {staff?.role === 'Doctor' ? 'MD' : staff?.role === 'Nurse' ? 'RN' : 'AD'}
                 </div>
                 <div className="leading-tight hidden md:block">
                   <p className="text-xs font-bold text-slate-800">
-                    {staff?.name?.split(' ')[0] || 'Dr.'} {staff?.name?.split(' ')[1] || 'Alexander'}
+                    {staff?.name || 'Medical Staff'}
                   </p>
                   <p className="text-[10px] font-extrabold flex items-center gap-1 text-brand-600">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -425,81 +405,68 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
-              {/* Role Dropdown */}
+              {/* Staff Account Dropdown */}
               {roleMenuOpen && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute right-0 mt-2 w-64 bg-white rounded-3xl p-3 shadow-xl border border-blue-100 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 mt-2 w-72 bg-white rounded-3xl p-3.5 shadow-xl border border-brand-100 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-2.5"
                 >
-                  <div className="px-2 py-1 mb-2 border-b border-slate-100">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                      Active Shift Persona
-                    </p>
-                    <p className="text-xs font-black text-slate-800">{staff?.name}</p>
-                    <p className="text-[11px] text-slate-500">{staff?.sector}</p>
+                  <div className="px-3 py-2 bg-slate-50/80 rounded-2xl border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                        Hospital Session
+                      </span>
+                      <span className={`text-[9px] font-semibold uppercase px-2 py-0.5 rounded-full ${
+                        staff?.role === 'Doctor'
+                          ? 'bg-brand-100 text-brand-700'
+                          : staff?.role === 'Nurse'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-brand-100 text-brand-700'
+                      }`}>
+                        {staff?.role}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-slate-900 mt-1">{staff?.name}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{staff?.email}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Sector: {staff?.sector || 'General Ward'}</p>
                   </div>
 
                   <div className="space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => handleSwitchRole('Doctor')}
-                      className={`w-full px-3 py-2 rounded-2xl text-left text-xs font-bold flex items-center justify-between transition ${
-                        staff?.role === 'Doctor' ? 'bg-blue-50 text-brand-700' : 'hover:bg-slate-50 text-slate-700'
-                      }`}
+                    <Link
+                      href="/profile"
+                      onClick={() => setRoleMenuOpen(false)}
+                      className="w-full px-3 py-2 rounded-2xl text-left text-xs font-bold text-slate-700 hover:bg-brand-50 hover:text-brand-600 flex items-center gap-2.5 transition"
                     >
-                      <div className="flex items-center gap-2">
-                        <Stethoscope className="w-4 h-4 text-brand-500" />
-                        <div>
-                          <p>Attending Doctor</p>
-                          <p className="text-[10px] font-normal text-slate-400">Dr. Alexander Wright, MD</p>
-                        </div>
+                      <User className="w-4 h-4 text-brand-500" />
+                      <div>
+                        <p>Staff Profile &amp; Roster</p>
+                        <p className="text-[10px] font-normal text-slate-400">Duty sector &amp; hospital registry</p>
                       </div>
-                      {staff?.role === 'Doctor' && <span className="w-2 h-2 rounded-full bg-brand-500"></span>}
-                    </button>
+                    </Link>
 
-                    <button
-                      type="button"
-                      onClick={() => handleSwitchRole('Nurse')}
-                      className={`w-full px-3 py-2 rounded-2xl text-left text-xs font-bold flex items-center justify-between transition ${
-                        staff?.role === 'Nurse' ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <HeartPulse className="w-4 h-4 text-emerald-500" />
+                    {staff?.role === 'Admin' && (
+                      <Link
+                        href="/settings"
+                        onClick={() => setRoleMenuOpen(false)}
+                        className="w-full px-3 py-2 rounded-2xl text-left text-xs font-bold text-brand-700 hover:bg-brand-50 flex items-center gap-2.5 transition"
+                      >
+                        <Settings className="w-4 h-4 text-brand-600" />
                         <div>
-                          <p>Head Nurse</p>
-                          <p className="text-[10px] font-normal text-slate-400">Sister Priya Sharma</p>
+                          <p>Hospital Settings Hub</p>
+                          <p className="text-[10px] font-normal text-brand-400">Wards, beds, doctors, staff</p>
                         </div>
-                      </div>
-                      {staff?.role === 'Nurse' && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleSwitchRole('Admin')}
-                      className={`w-full px-3 py-2 rounded-2xl text-left text-xs font-bold flex items-center justify-between transition ${
-                        staff?.role === 'Admin' ? 'bg-purple-50 text-purple-700' : 'hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Sliders className="w-4 h-4 text-purple-600" />
-                        <div>
-                          <p>Hospital Admin</p>
-                          <p className="text-[10px] font-normal text-slate-400">Chief Operations</p>
-                        </div>
-                      </div>
-                      {staff?.role === 'Admin' && <span className="w-2 h-2 rounded-full bg-purple-600"></span>}
-                    </button>
+                      </Link>
+                    )}
                   </div>
 
-                  <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-slate-100">
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="w-full py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                      className="w-full py-2 px-3 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>Sign Out to Landing</span>
+                      <span>Sign Out of Shift</span>
                     </button>
                   </div>
                 </div>
@@ -509,7 +476,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
         </header>
 
         {/* SCROLLABLE PAGE BODY */}
-        <main className="flex-1 overflow-y-auto pr-1 pb-24 lg:pb-6">
+        <main data-pull-refresh-scroll className="overscroll-y-contain flex-1 overflow-y-auto pr-1 pb-24 lg:pb-6">
           {children}
 
           {/* Persistent Footer */}
@@ -606,48 +573,24 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeStaff: propS
                 </button>
               </div>
 
-              {/* Mobile Staff Badge & Switcher */}
-              <div className="my-3 p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+              {/* Mobile Staff Account Info */}
+              <div className="my-3 p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-brand-500 text-white font-black text-xs flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-xl text-white font-semibold text-xs flex items-center justify-center ${
+                    staff?.role === 'Doctor' ? 'bg-brand-500' : staff?.role === 'Nurse' ? 'bg-emerald-500' : 'bg-brand-600'
+                  }`}>
                     {staff?.role === 'Doctor' ? 'MD' : staff?.role === 'Nurse' ? 'RN' : 'AD'}
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-900">{staff?.name}</p>
-                    <p className="text-[10px] font-semibold text-brand-600">{staff?.role} Mode</p>
+                    <p className="text-[10px] font-semibold text-brand-600">{staff?.role} Duty Active</p>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-3 gap-1 pt-1">
-                  <button
-                    onClick={() => handleSwitchRole('Doctor')}
-                    className={`py-1 text-[10px] font-bold rounded-lg ${
-                      staff?.role === 'Doctor' ? 'bg-brand-500 text-white' : 'bg-white border text-slate-600'
-                    }`}
-                  >
-                    Doctor
-                  </button>
-                  <button
-                    onClick={() => handleSwitchRole('Nurse')}
-                    className={`py-1 text-[10px] font-bold rounded-lg ${
-                      staff?.role === 'Nurse' ? 'bg-emerald-500 text-white' : 'bg-white border text-slate-600'
-                    }`}
-                  >
-                    Nurse
-                  </button>
-                  <button
-                    onClick={() => handleSwitchRole('Admin')}
-                    className={`py-1 text-[10px] font-bold rounded-lg ${
-                      staff?.role === 'Admin' ? 'bg-purple-600 text-white' : 'bg-white border text-slate-600'
-                    }`}
-                  >
-                    Admin
-                  </button>
-                </div>
+                <p className="text-[10px] text-slate-500">Sector: {staff?.sector || 'General Ward'}</p>
               </div>
 
               <nav className="flex flex-col gap-1.5 mt-2">
-                {navLinks.map((link) => {
+                {visibleNavLinks.map((link) => {
                   const Icon = link.icon;
                   const isActive = pathname === link.href;
                   return (

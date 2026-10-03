@@ -25,7 +25,7 @@ export const WardDonutChart: React.FC<WardDonutChartProps> = ({ wards, beds }) =
   const strokeDashoffset = circumference - (occupiedPercent / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-blue-50/80 shadow-[0_10px_35px_rgba(29,119,255,0.04)] flex flex-col justify-between">
+    <div className="bg-white rounded-3xl p-5 border border-brand-50/80 shadow-[0_10px_35px_rgba(24,62,51,0.04)] flex flex-col justify-between">
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
           <PieChart className="w-4 h-4 text-brand-500" />
@@ -66,7 +66,7 @@ export const WardDonutChart: React.FC<WardDonutChartProps> = ({ wards, beds }) =
 
         {/* Center Text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-2xl font-black text-slate-900">{occupiedPercent}%</span>
+          <span className="text-2xl font-semibold text-slate-900">{occupiedPercent}%</span>
           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
             Occupied
           </span>

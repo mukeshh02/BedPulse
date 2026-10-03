@@ -1,11 +1,15 @@
 'use client';
+import {usePullRefresh} from '@/components/PullToRefresh';
+import { DataSkeleton } from '@/components/LoadingFeedback';
 
+import { ButtonSpinner } from '@/components/LoadingFeedback';
+
+import { HospitalService } from '@/lib/hospital';
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Ward, Bed, Admission } from '@/types';
 import { DataService } from '@/lib/supabase';
-import { AppShell } from '@/components/AppShell';
 import {
   LogOut,
   BedDouble,
@@ -24,7 +28,7 @@ import {
   User,
   Check,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+
 
 function DischargeFlow() {
   const router = useRouter();
@@ -41,17 +45,15 @@ function DischargeFlow() {
   const [selectedAdmissionId, setSelectedAdmissionId] = useState<string>('');
   const [dischargeType, setDischargeType] = useState<'normal' | 'referred' | 'lama'>('normal');
   const [destinationHospital, setDestinationHospital] = useState('');
-  const [referralReason, setReferralReason] = useState('Need Tertiary Cardiac Catheterization / Advanced ICU care');
-  const [dischargeSummary, setDischargeSummary] = useState('Patient vitals stabilized, course of treatment completed successfully.');
-  const [doctorAdvice, setDoctorAdvice] = useState('Continue prescribed oral medications, low salt diet, complete bed rest, follow up in OPD after 5 days.');
-  const [followUpDate, setFollowUpDate] = useState(
-    new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  );
+  const [referralReason, setReferralReason] = useState('');
+  const [dischargeSummary, setDischargeSummary] = useState('');
+  const [doctorAdvice, setDoctorAdvice] = useState('');
+  const [followUpDate, setFollowUpDate] = useState('');
 
   // Clearances
-  const [pharmacyCleared, setPharmacyCleared] = useState(true);
-  const [labsCleared, setLabsCleared] = useState(true);
-  const [billingCleared, setBillingCleared] = useState(true);
+  const [pharmacyCleared, setPharmacyCleared] = useState(false);
+  const [labsCleared, setLabsCleared] = useState(false);
+  const [billingCleared, setBillingCleared] = useState(false);
 
   // Submissions
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +71,7 @@ function DischargeFlow() {
       setBeds(b);
       setAdmissions(a);
 
-      const activeAdmissions = a.filter((adm) => adm.status === 'admitted');
+      const activeAdmissions = a.filter((adm) => ['admitted', 'shifted'].includes(adm.status));
 
       if (queryAdmissionId) {
         setSelectedAdmissionId(queryAdmissionId);
@@ -86,12 +88,13 @@ function DischargeFlow() {
     }
   };
 
+ usePullRefresh(loadData);
   useEffect(() => {
     loadData();
   }, [queryAdmissionId, queryBedId]);
 
-  const activeAdmissions = admissions.filter((a) => a.status === 'admitted');
-  const currentAdmission = admissions.find((a) => a.id === selectedAdmissionId);
+  const activeAdmissions = admissions.filter((a) => ['admitted', 'shifted'].includes(a.status));
+  const currentAdmission = activeAdmissions.find((a) => a.id === selectedAdmissionId);
   const currentBed = beds.find((b) => b.id === currentAdmission?.bed_id);
   const currentWard = wards.find((w) => w.id === currentBed?.ward_id);
 
@@ -142,9 +145,7 @@ function DischargeFlow() {
         followUp: dischargeType === 'normal' ? followUpDate : null,
       });
 
-      try {
-        confetti({ particleCount: 60, spread: 70 });
-      } catch {}
+
 
       await loadData();
     } catch (err: any) {
@@ -159,57 +160,25 @@ function DischargeFlow() {
     window.print();
   };
 
+  if (loading) return <DataSkeleton />;
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 md:p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_20px_rgba(29,119,255,0.04)]">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm shrink-0">
-            <LogOut className="w-6 h-6 stroke-[2.2]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">
-                Patient Discharge &amp; Referral Management
-              </h1>
-              <span className="bg-emerald-50 text-emerald-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200">
-                Step 4
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Generate final discharge summary, refer to higher centers, and release beds back to sanitization protocol.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href="/wards"
-            className="px-3.5 py-2 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition flex items-center gap-1.5 shadow-sm"
-          >
-            <BedDouble className="w-3.5 h-3.5 text-brand-500" />
-            Check Live Beds
-          </Link>
-          <Link
-            href="/patients"
-            className="px-3.5 py-2 rounded-2xl bg-blue-50 text-brand-600 border border-blue-100 text-xs font-bold hover:bg-blue-100 transition shadow-sm"
-          >
-            Inpatients ({activeAdmissions.length})
-          </Link>
-        </div>
-      </div>
-
+    <div className="space-y-5 max-w-5xl mx-auto pb-6">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div><h1 className="text-3xl font-semibold tracking-tight">Discharge &amp; referral</h1><p className="mt-2 text-xs text-slate-500">Complete a patient’s stay.</p></div>
+        <Link href="/patients" className="inline-flex items-center gap-2 rounded-xl border border-brand-100 bg-white px-4 py-2.5 text-xs font-medium"><User size={15}/>Patients ({activeAdmissions.length})</Link>
+      </header>
       {/* DISCHARGE SUCCESS SLIP PREVIEW */}
       {dischargedData ? (
-        <div className="bg-white rounded-3xl p-6 md:p-8 border border-emerald-100 shadow-[0_10px_35px_rgba(16,185,129,0.08)] space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-5">
+        <div className="bg-white rounded-2xl p-6 md:p-8 border border-brand-100 shadow-[0_10px_35px_rgba(16,185,129,0.08)] space-y-6">
+          <div className="flex flex-wrap gap-3 items-center justify-between border-b border-brand-100 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center shadow-sm">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-slate-900">Discharge Completed Successfully</h3>
-                <p className="text-xs text-emerald-700 font-semibold">
+                <h3 className="text-xl font-semibold text-slate-900">Discharge complete</h3>
+                <p className="text-xs text-brand-700 font-semibold">
                   Bed <strong>{dischargedData.bedNumber}</strong> has been marked as <strong>Sanitizing / Cleaning</strong>.
                 </p>
               </div>
@@ -217,20 +186,20 @@ function DischargeFlow() {
 
             <button
               onClick={handlePrint}
-              className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl text-xs font-bold flex items-center gap-2 transition shadow-md shadow-emerald-500/25"
+              className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold flex items-center gap-2 transition shadow-md shadow-brand-500/25"
             >
               <Printer className="w-4 h-4" />
-              Print Discharge Card
+              Print summary
             </button>
           </div>
 
           {/* Printable Discharge Card */}
-          <div className="bg-white p-8 rounded-3xl border-2 border-slate-200/80 max-w-2xl mx-auto space-y-5 shadow-sm text-xs print:p-0 print:border-none">
+          <div className="bg-white p-4 sm:p-8 rounded-2xl border-2 border-slate-200/80 max-w-2xl mx-auto space-y-5 shadow-sm text-xs print:p-0 print:border-none">
             {/* Header */}
             <div className="text-center border-b-2 border-brand-500 pb-4">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <HeartPulse className="w-6 h-6 text-brand-600" />
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">BEDPULSE™ HOSPITAL &amp; RESEARCH CENTER</h2>
+                <h2 className="text-xl font-semibold text-slate-900 tracking-tight">{HospitalService.current()?.hospital.name || 'Hospital'}</h2>
               </div>
               <p className="text-xs text-slate-600 font-semibold uppercase tracking-wider">
                 {dischargedData.dischargeType === 'referred'
@@ -239,7 +208,7 @@ function DischargeFlow() {
                   ? 'DISCHARGE AGAINST MEDICAL ADVICE (L.A.M.A)'
                   : 'INPATIENT DISCHARGE SUMMARY'}
               </p>
-              <p className="text-[10px] text-slate-400 mt-1">24x7 Emergency Helpline: +91 7000371321 • WebVission Care OS</p>
+
             </div>
 
             {/* Demographics Grid */}
@@ -277,7 +246,7 @@ function DischargeFlow() {
                   <Ambulance className="w-4 h-4 text-amber-600" />
                   REFERRED TO HIGHER CENTER:
                 </span>
-                <p className="font-black text-sm mt-0.5">{dischargedData.destinationHospital}</p>
+                <p className="font-semibold text-sm mt-0.5">{dischargedData.destinationHospital}</p>
                 <p className="text-[11px] mt-1 text-amber-800">
                   <strong>Referral Justification:</strong> {dischargedData.referralReason}
                 </p>
@@ -302,9 +271,9 @@ function DischargeFlow() {
               </div>
 
               {dischargedData.followUp && (
-                <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-100 flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-800">Follow-up OPD Review:</span>
-                  <span className="text-xs font-black text-emerald-900 font-mono">
+                <div className="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between">
+                  <span className="text-xs font-bold text-brand-800">Follow-up OPD Review:</span>
+                  <span className="text-xs font-semibold text-brand-900 font-mono">
                     {new Date(dischargedData.followUp).toLocaleDateString('en-IN', {
                       weekday: 'short',
                       year: 'numeric',
@@ -319,13 +288,13 @@ function DischargeFlow() {
             {/* Signatures */}
             <div className="pt-8 border-t border-slate-200 flex items-end justify-between text-[11px] text-slate-500">
               <div className="text-center">
-                <div className="w-36 border-b border-slate-300 pb-1 mb-1 font-semibold text-slate-700">
+                <div className="w-28 sm:w-36 border-b border-slate-300 pb-1 mb-1 font-semibold text-slate-700">
                   Sister In-Charge
                 </div>
                 <span>Nursing Station Sign</span>
               </div>
               <div className="text-center">
-                <div className="w-48 border-b border-slate-300 pb-1 mb-1 font-black text-slate-900">
+                <div className="w-32 sm:w-48 border-b border-slate-300 pb-1 mb-1 font-semibold text-slate-900">
                   {dischargedData.doctor}
                 </div>
                 <span>Authorized Attending Consultant</span>
@@ -342,13 +311,13 @@ function DischargeFlow() {
               className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold transition flex items-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              Process Another Discharge
+              Another discharge
             </button>
             <Link
               href="/wards"
               className="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl text-xs font-bold transition shadow-md shadow-brand-500/25"
             >
-              Back to Live Wards
+              View beds
             </Link>
           </div>
         </div>
@@ -364,11 +333,11 @@ function DischargeFlow() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* PATIENT TO DISCHARGE (5 COLS) */}
-            <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] space-y-4">
+            <div className="lg:col-span-5 bg-white p-4 sm:p-5 rounded-2xl border border-brand-100 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <User className="w-4 h-4 text-emerald-600" />
-                  Select Admitted Patient
+                  <User className="w-4 h-4 text-brand-600" />
+                  Patient
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">
                   {activeAdmissions.length} Inpatients
@@ -377,19 +346,19 @@ function DischargeFlow() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Inpatient File *
+                  Select patient *
                 </label>
                 <select
                   value={selectedAdmissionId}
-                  onChange={(e) => setSelectedAdmissionId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-800"
+                  onChange={(e) => {setSelectedAdmissionId(e.target.value); setPharmacyCleared(false); setLabsCleared(false); setBillingCleared(false); setDischargeSummary(''); setDoctorAdvice(''); setFollowUpDate('');}}
+                  className="w-full px-3.5 py-2.5 text-sm bg-brand-50 border border-brand-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold text-slate-800"
                 >
-                  {activeAdmissions.map((adm) => {
+                  <option value="">Choose a patient</option>{activeAdmissions.map((adm) => {
                     const b = beds.find((bed) => bed.id === adm.bed_id);
                     const w = wards.find((ward) => ward.id === b?.ward_id);
                     return (
                       <option key={adm.id} value={adm.id}>
-                        {adm.patient?.full_name} ({adm.patient?.uhid}) — Bed {b?.bed_number} [{w?.name}]
+                        {adm.patient?.full_name} · {b?.bed_number}
                       </option>
                     );
                   })}
@@ -397,20 +366,20 @@ function DischargeFlow() {
               </div>
 
               {currentAdmission?.patient && currentBed && currentWard ? (
-                <div className="p-4 bg-emerald-50/40 rounded-2xl border border-emerald-200/80 space-y-3">
+                <div className="p-4 bg-brand-50/40 rounded-2xl border border-brand-200/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-black text-sm text-slate-900">{currentAdmission.patient.full_name}</h4>
-                      <p className="text-[11px] font-mono text-slate-500">
-                        UHID: {currentAdmission.patient.uhid} • Age: {currentAdmission.patient.age}y
+                      <h4 className="font-semibold text-sm text-slate-900">{currentAdmission.patient.full_name}</h4>
+                      <p className="text-xs text-slate-500">
+                        {currentAdmission.patient.age}y · {currentAdmission.patient.gender}
                       </p>
                     </div>
-                    <span className="px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 font-black text-xs font-mono">
+                    <span className="px-2.5 py-1 rounded-xl bg-brand-100 text-brand-800 font-semibold text-xs font-mono">
                       {currentBed.bed_number}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-2 border-t border-emerald-200/60">
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-2 border-t border-brand-200/60">
                     <div>
                       <span className="text-slate-400 font-bold block text-[10px]">CURRENT WARD:</span>
                       <span className="font-semibold text-slate-800">{currentWard.name}</span>
@@ -436,7 +405,7 @@ function DischargeFlow() {
 
                   {/* Bed Auto Release Notification */}
                   <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-200/80 text-[11px] text-amber-900 font-medium">
-                    Bed <strong>{currentBed.bed_number}</strong> will automatically be released and placed under sanitization cleaning.
+                    Bed <strong>{currentBed.bed_number}</strong> will be marked for cleaning.
                   </div>
                 </div>
               ) : null}
@@ -444,61 +413,59 @@ function DischargeFlow() {
               {/* Clearance Checkboxes */}
               <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2.5">
                 <span className="text-xs font-extrabold text-slate-800 block mb-1">
-                  Discharge Clearance Checklist
+                  Clearance
                 </span>
                 <label className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={pharmacyCleared}
                     onChange={(e) => setPharmacyCleared(e.target.checked)}
-                    className="accent-emerald-600 w-4 h-4 rounded"
+                    className="accent-brand-600 w-4 h-4 rounded shrink-0"
                   />
-                  <span>Pharmacy &amp; Medication returns verified</span>
+                  <span>Medication returns checked</span>
                 </label>
                 <label className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={labsCleared}
                     onChange={(e) => setLabsCleared(e.target.checked)}
-                    className="accent-emerald-600 w-4 h-4 rounded"
+                    className="accent-brand-600 w-4 h-4 rounded shrink-0"
                   />
-                  <span>Laboratory &amp; Radiology reports attached</span>
+                  <span>Reports attached</span>
                 </label>
                 <label className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={billingCleared}
                     onChange={(e) => setBillingCleared(e.target.checked)}
-                    className="accent-emerald-600 w-4 h-4 rounded"
+                    className="accent-brand-600 w-4 h-4 rounded shrink-0"
                   />
-                  <span className="font-bold text-slate-900">Hospital IP Billing &amp; TPA Clearance Settled *</span>
+                  <span className="font-bold text-slate-900">Billing cleared *</span>
                 </label>
               </div>
             </div>
 
             {/* DISCHARGE DETAILS (7 COLS) */}
-            <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] space-y-5">
+            <div className="lg:col-span-7 bg-white p-4 sm:p-5 rounded-2xl border border-brand-100 space-y-5">
               <div className="border-b border-slate-100 pb-3">
-                <h3 className="font-extrabold text-slate-800 text-sm">Discharge Category &amp; Summary</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Select clinical disposition pathway</p>
+                <h3 className="font-extrabold text-slate-800 text-sm">Discharge details</h3>
+
               </div>
 
               {/* Category Radio Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setDischargeType('normal')}
                   className={`p-3 rounded-2xl border text-left transition ${
                     dischargeType === 'normal'
-                      ? 'bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/25'
-                      : 'bg-emerald-50/40 text-slate-700 border-emerald-200 hover:bg-emerald-50'
+                      ? 'bg-brand-700 text-white border-brand-700'
+                      : 'bg-brand-50/40 text-slate-700 border-brand-200 hover:bg-brand-50'
                   }`}
                 >
                   <Home className="w-5 h-5 mb-1.5" />
-                  <span className="font-extrabold text-xs block">Normal Discharge</span>
-                  <span className={`text-[10px] block mt-0.5 ${dischargeType === 'normal' ? 'text-emerald-100' : 'text-slate-500'}`}>
-                    Recovered / Home
-                  </span>
+                  <span className="font-extrabold text-xs block">Discharge</span>
+
                 </button>
 
                 <button
@@ -506,15 +473,13 @@ function DischargeFlow() {
                   onClick={() => setDischargeType('referred')}
                   className={`p-3 rounded-2xl border text-left transition ${
                     dischargeType === 'referred'
-                      ? 'bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25'
-                      : 'bg-amber-50/40 text-slate-700 border-amber-200 hover:bg-amber-50'
+                      ? 'bg-brand-700 text-white border-brand-700'
+                      : 'bg-brand-50 text-brand-600 border-brand-100 hover:bg-brand-100'
                   }`}
                 >
                   <Ambulance className="w-5 h-5 mb-1.5" />
-                  <span className="font-extrabold text-xs block">Refer to Higher</span>
-                  <span className={`text-[10px] block mt-0.5 ${dischargeType === 'referred' ? 'text-amber-100' : 'text-slate-500'}`}>
-                    Tertiary / Cardiac Care
-                  </span>
+                  <span className="font-extrabold text-xs block">Referral</span>
+
                 </button>
 
                 <button
@@ -522,15 +487,13 @@ function DischargeFlow() {
                   onClick={() => setDischargeType('lama')}
                   className={`p-3 rounded-2xl border text-left transition ${
                     dischargeType === 'lama'
-                      ? 'bg-rose-500 text-white border-rose-600 shadow-md shadow-rose-500/25'
-                      : 'bg-rose-50/40 text-slate-700 border-rose-200 hover:bg-rose-50'
+                      ? 'bg-brand-700 text-white border-brand-700'
+                      : 'bg-brand-50 text-brand-600 border-brand-100 hover:bg-brand-100'
                   }`}
                 >
                   <AlertTriangle className="w-5 h-5 mb-1.5" />
-                  <span className="font-extrabold text-xs block">L.A.M.A Discharge</span>
-                  <span className={`text-[10px] block mt-0.5 ${dischargeType === 'lama' ? 'text-rose-100' : 'text-slate-500'}`}>
-                    Against Medical Advice
-                  </span>
+                  <span className="font-extrabold text-xs block">LAMA</span>
+
                 </button>
               </div>
 
@@ -539,20 +502,20 @@ function DischargeFlow() {
                 <div className="p-4 bg-amber-50/80 rounded-2xl border border-amber-200 space-y-3">
                   <div>
                     <label className="block text-xs font-bold text-amber-900 mb-1">
-                      Destination Referral Hospital Name *
+                      Destination hospital *
                     </label>
                     <input
                       type="text"
                       required
                       value={destinationHospital}
                       onChange={(e) => setDestinationHospital(e.target.value)}
-                      placeholder="e.g. AIIMS Bhopal / Medanta Super Speciality"
+                      placeholder="Hospital name"
                       className="w-full px-3.5 py-2 text-xs bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-amber-900 mb-1">
-                      Reason for Higher Center Referral
+                      Referral reason
                     </label>
                     <input
                       type="text"
@@ -567,27 +530,27 @@ function DischargeFlow() {
               {/* Clinical Summary */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Discharge Clinical Course &amp; Condition *
+                  Discharge summary *
                 </label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   required
                   value={dischargeSummary}
                   onChange={(e) => setDischargeSummary(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white resize-none"
+                  className="w-full px-3.5 py-2.5 text-sm bg-brand-50 border border-brand-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white resize-none"
                 ></textarea>
               </div>
 
               {/* Doctor Advice */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Physician Advice &amp; Discharge Prescriptions
+                  Advice &amp; medications
                 </label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={doctorAdvice}
                   onChange={(e) => setDoctorAdvice(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white resize-none"
+                  className="w-full px-3.5 py-2.5 text-sm bg-brand-50 border border-brand-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white resize-none"
                 ></textarea>
               </div>
 
@@ -595,33 +558,33 @@ function DischargeFlow() {
               {dischargeType === 'normal' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Follow-up OPD Review Date
+                    Follow-up date (optional)
                   </label>
                   <input
                     type="date"
                     value={followUpDate}
                     onChange={(e) => setFollowUpDate(e.target.value)}
-                    className="w-full sm:w-1/2 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold"
+                    className="w-full sm:w-1/2 px-3.5 py-2 text-sm bg-brand-50 border border-brand-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
                   />
                 </div>
               )}
 
               {/* Submit Button */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <div className="pt-4 border-t border-brand-100 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
                 <p className="text-xs text-slate-400">
-                  Frees bed immediately for terminal cleaning &amp; sanitization.
+                  Selected bed will need cleaning.
                 </p>
                 <button
                   type="submit"
-                  disabled={isSubmitting || !selectedAdmissionId}
-                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white rounded-2xl text-xs font-bold transition flex items-center gap-2 shadow-md shadow-emerald-600/25 shrink-0"
-                >
+                  disabled={isSubmitting || !currentAdmission || !billingCleared}
+                  className="px-6 py-3 bg-brand-700 hover:bg-brand-600 disabled:opacity-40 text-white rounded-2xl text-xs font-bold transition flex items-center gap-2 shadow-md shadow-brand-600/25 shrink-0"
+                >{isSubmitting && <ButtonSpinner />}
                   {isSubmitting ? (
-                    <span>Processing Discharge...</span>
+                    <span>Saving…</span>
                   ) : (
                     <>
                       <LogOut className="w-4 h-4" />
-                      <span>Confirm Discharge &amp; Release Bed</span>
+                      <span>{dischargeType === 'referred' ? 'Confirm referral' : 'Confirm discharge'}</span>
                     </>
                   )}
                 </button>
@@ -636,10 +599,10 @@ function DischargeFlow() {
 
 export default function DischargePage() {
   return (
-    <AppShell>
-      <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading Discharge Pipeline...</div>}>
+    <>
+      <Suspense fallback={<DataSkeleton />}>
         <DischargeFlow />
       </Suspense>
-    </AppShell>
+    </>
   );
 }

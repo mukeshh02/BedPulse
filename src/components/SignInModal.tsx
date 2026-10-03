@@ -1,4 +1,6 @@
 'use client';
+import { ButtonSpinner } from '@/components/LoadingFeedback';
+
 
 import React, { useState } from 'react';
 import {
@@ -65,7 +67,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#F9F9FF] rounded-3xl w-full max-w-md border border-blue-100 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col font-sans">
+      <div className="bg-[#F8FAF9] rounded-3xl w-full max-w-md border border-brand-100 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col font-sans">
         {/* Header */}
         <div className="px-5 py-3.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
@@ -89,18 +91,18 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 overflow-y-auto space-y-4 text-xs">
           {/* Welcome Banner */}
           <div className="text-center space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-brand-600 text-[10px] font-bold border border-blue-100">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-600 text-[10px] font-bold border border-brand-100">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Central Medical Unit • Active Shift
             </div>
-            <h2 className="text-lg font-black text-slate-900 mt-1">Welcome Back to BedPulse™</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mt-1">Welcome Back to BedPulse™</h2>
             <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
               Secure Inpatient &amp; Bed Management for High-Precision Care
             </p>
           </div>
 
           {/* HIPAA Badge */}
-          <div className="flex items-center justify-between bg-blue-50/60 border border-blue-100 px-3.5 py-2 rounded-2xl text-[11px]">
+          <div className="flex items-center justify-between bg-brand-50/60 border border-brand-100 px-3.5 py-2 rounded-2xl text-[11px]">
             <div className="flex items-center gap-1.5 text-slate-700 font-semibold">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>HIPAA &amp; HL7 Audited Session</span>
@@ -217,7 +219,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
               type="submit"
               disabled={isSubmitting}
               className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-bold shadow-md shadow-brand-500/25 transition flex items-center justify-center gap-2"
-            >
+            >{isSubmitting && <ButtonSpinner />}
               {isSubmitting ? (
                 <span>Authenticating Session...</span>
               ) : (

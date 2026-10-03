@@ -20,7 +20,7 @@ export const PatientActivityList: React.FC<PatientActivityListProps> = ({
   const activeAdmissions = admissions.filter((a) => a.status === 'admitted');
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-blue-50/80 shadow-[0_10px_35px_rgba(29,119,255,0.04)] space-y-4">
+    <div className="bg-white rounded-3xl p-5 border border-brand-50/80 shadow-[0_10px_35px_rgba(24,62,51,0.04)] space-y-4">
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div>
           <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
@@ -29,7 +29,7 @@ export const PatientActivityList: React.FC<PatientActivityListProps> = ({
           </h4>
           <p className="text-[11px] text-slate-400">Currently admitted in wards</p>
         </div>
-        <span className="text-[11px] font-bold text-brand-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+        <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">
           {activeAdmissions.length} Patients
         </span>
       </div>
@@ -51,7 +51,7 @@ export const PatientActivityList: React.FC<PatientActivityListProps> = ({
             return (
               <div key={adm.id} className="pt-2 flex items-center justify-between gap-2 group">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-100">
+                  <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs shrink-0 border border-brand-100">
                     <User className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">

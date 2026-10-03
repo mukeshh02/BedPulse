@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { Ward, Bed, Admission } from '@/types';
 import {
@@ -67,7 +66,7 @@ export const InpatientsDirectory: React.FC<InpatientsDirectoryProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#F8FAFD] rounded-3xl w-full max-w-4xl border border-blue-100 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col font-sans">
+      <div className="bg-[#F8FAF9] rounded-3xl w-full max-w-4xl border border-brand-100 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col font-sans">
         {/* Header */}
         <div className="px-6 py-4 bg-white border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -76,15 +75,15 @@ export const InpatientsDirectory: React.FC<InpatientsDirectoryProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900">
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">
                   Admitted Inpatients Directory
                 </h2>
-                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-50 text-brand-600 border border-blue-100">
+                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-600 border border-brand-100">
                   {activeAdmissions.length} Active
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Live Census Sync • Central Medical Hospital Tower
+                Live Census Sync • {'BedPulse Hospital'}
               </p>
             </div>
           </div>
@@ -152,12 +151,12 @@ export const InpatientsDirectory: React.FC<InpatientsDirectoryProps> = ({
                 return (
                   <div
                     key={adm.id}
-                    className="bg-white rounded-2xl p-4 border border-blue-50/80 shadow-[0_8px_25px_rgba(29,119,255,0.04)] space-y-3 flex flex-col justify-between"
+                    className="bg-white rounded-2xl p-4 border border-brand-50/80 shadow-[0_8px_25px_rgba(24,62,51,0.04)] space-y-3 flex flex-col justify-between"
                   >
                     {/* Patient Card Top */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center font-bold text-xs border border-blue-100 shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs border border-brand-100 shrink-0">
                           {adm.patient?.full_name
                             .split(' ')
                             .map((n) => n[0])
@@ -169,7 +168,7 @@ export const InpatientsDirectory: React.FC<InpatientsDirectoryProps> = ({
                             <h3 className="text-xs sm:text-sm font-bold text-slate-900">
                               {adm.patient?.full_name}
                             </h3>
-                            <span className="text-[10px] font-bold text-brand-600 bg-blue-50 px-1.5 py-0.2 rounded">
+                            <span className="text-[10px] font-bold text-brand-600 bg-brand-50 px-1.5 py-0.2 rounded">
                               {adm.patient?.uhid}
                             </span>
                           </div>

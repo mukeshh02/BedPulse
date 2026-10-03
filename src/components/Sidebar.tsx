@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   totalBeds,
 }) => {
   return (
-    <aside className="w-72 bg-white rounded-3xl p-5 flex flex-col justify-between border border-blue-50/80 shadow-[0_10px_35px_rgba(29,119,255,0.06)] shrink-0 select-none hidden lg:flex">
+    <aside className="w-72 bg-white rounded-3xl p-5 flex flex-col justify-between border border-brand-50/80 shadow-[0_10px_35px_rgba(24,62,51,0.06)] shrink-0 select-none hidden lg:flex">
       <div className="flex flex-col gap-6">
         {/* Brand Header */}
         <div className="flex items-center gap-3 px-2 pt-1">
@@ -88,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <UserPlus className="w-5 h-5 text-slate-400 group-hover:text-brand-500 transition-colors" />
               <span>Patient Admission</span>
             </div>
-            <span className="text-[10px] font-bold bg-blue-50 text-brand-600 px-2 py-0.5 rounded-full border border-blue-100">
+            <span className="text-[10px] font-bold bg-brand-50 text-brand-600 px-2 py-0.5 rounded-full border border-brand-100">
               Step 1 & 2
             </span>
           </button>
@@ -102,9 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <ArrowRightLeft className="w-5 h-5 text-slate-400 group-hover:text-amber-500 transition-colors" />
               <span>Bed Transfers</span>
             </div>
-            <span className="text-[10px] font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-100">
-              Step 3
-            </span>
+
           </button>
 
           {/* Step 4: Discharge & Refer */}
@@ -116,9 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <LogOut className="w-5 h-5 text-slate-400 group-hover:text-emerald-500 transition-colors" />
               <span>Discharge & Refer</span>
             </div>
-            <span className="text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-100">
-              Step 4
-            </span>
+
           </button>
 
           {/* Inpatients Directory */}
@@ -161,9 +157,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <div className="flex items-center gap-3">
               <Sliders className="w-5 h-5 text-slate-400 group-hover:text-brand-500 transition-colors" />
-              <span>Ward Master Studio</span>
+              <span>Ward management</span>
             </div>
-            <span className="text-[10px] font-semibold bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-100">
+            <span className="text-[10px] font-semibold bg-brand-50 text-brand-600 px-2 py-0.5 rounded-full border border-brand-100">
               Dynamic
             </span>
           </button>
@@ -184,7 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom WebVission Support & Reset Card */}
       <div className="space-y-3">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-100/70 p-4 rounded-2xl relative overflow-hidden shadow-sm">
+        <div className="bg-gradient-to-br from-brand-50 to-brand-50/60 border border-brand-100/70 p-4 rounded-2xl relative overflow-hidden shadow-sm">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
               +
@@ -205,7 +201,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </a>
         </div>
 
-        
+
       </div>
     </aside>
   );

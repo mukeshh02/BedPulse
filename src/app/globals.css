@@ -8,10 +8,19 @@
   --font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
 }
 
-body {
+html, body {
   font-family: var(--font-plus-jakarta);
-  background-color: #F1F6FD;
-  color: #1E293B;
+  background-color: #F8FAF9;
+  color: #18362E;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent iOS Safari auto-zoom on form inputs */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Custom Soft Scrollbars */
@@ -20,14 +29,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F6FD;
+  background: #F8FAF9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #CED8CE;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #91A393;
 }
 
 @keyframes pulseGlow {
@@ -38,3 +47,27 @@ body {
 .animate-pulse-glow {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
+
+/* Shared visual language across every page and modal. */
+body { color: #18362E; }
+.text-slate-900, .text-slate-800 { color: #18362E; }
+.bg-slate-50 { background-color: #F8FAF6; }
+.bg-slate-100 { background-color: #F1F5EF; }
+.rounded-3xl { border-radius: 18px; }
+:focus-visible { outline: 2px solid #789986; outline-offset: 3px; }
+.dashboard-theme { background: #F8FAF9; }
+.dashboard-content { padding-bottom: 24px; }
+.workspace-theme aside { width: 250px; border-color: #DFE7DE; box-shadow: none; }
+.workspace-theme [class*="shadow-"] { box-shadow: 0 2px 8px rgba(24,62,51,0.025); }
+.workspace-theme [class*="bg-gradient-"] { background-image: none; }
+.workspace-theme main h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.035em; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@keyframes navigationProgress { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+.navigation-progress { width: 30%; animation: navigationProgress 1.15s ease-in-out infinite; }
+@keyframes skeletonPulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+.skeleton { background: #E5EDE2; animation: skeletonPulse 1.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .navigation-progress { width: 100%; transform: none; animation: none; } .skeleton { animation: none; } }

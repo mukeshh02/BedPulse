@@ -1,0 +1,100 @@
+// npm install --prefix .hospital-verification --no-package-lock --no-save @electric-sql/pglite
+// node scripts/test-hospital-isolation.cjs
+const { PGlite } = require('../.hospital-verification/node_modules/@electric-sql/pglite');
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const db = new PGlite();
+let checks = 0;
+const pass = message => { checks++; console.log('PASS ' + message); };
+async function fails(sql, params, pattern) {
+ try { await db.query(sql, params); } catch (error) { assert.match(error.message, pattern); return; }
+ throw new Error('Expected rejection: ' + sql);
+}
+async function asUser(id) {
+ await db.exec('RESET ROLE');
+ await db.query("SELECT set_config('request.jwt.claim.sub',$1,false)",[id]);
+ await db.exec('SET ROLE authenticated');
+}
+async function main() {
+ await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE SCHEMA auth;
+ CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb DEFAULT '{}');
+ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+ GRANT USAGE ON SCHEMA auth TO authenticated; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;`);
+ const base = fs.readFileSync('supabase_schema.sql','utf8').split('-- Enable Realtime publication safely')[0].replace('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";','');
+ await db.exec(base);
+ await db.exec("INSERT INTO wards(name,code) VALUES('Legacy ward','LEGACY')");
+ await db.exec(fs.readFileSync('supabase/migrations/202610030001_hospitals.sql','utf8'));
+ pass('Existing schema migrates successfully');
+ const users=['00000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-000000000003'];
+ for(let i=0;i<users.length;i++) await db.query('INSERT INTO auth.users(id,email,email_confirmed_at) VALUES($1,$2,now())',[users[i],`staff${i}@example.com`]);
+ await asUser(users[0]);
+ const a=(await db.query('SELECT create_hospital($1::jsonb) id',[JSON.stringify({name:'Hospital A',code:'hospital-a'})])).rows[0].id;
+ await fails('SELECT complete_hospital_setup($1)',[a],/at least one ward/);
+ const wa=(await db.query("INSERT INTO wards(hospital_id,name,code) VALUES($1,'ICU','ICU') RETURNING id",[a])).rows[0].id;
+ const ba=(await db.query("INSERT INTO beds(hospital_id,ward_id,bed_number) VALUES($1,$2,'ICU-01') RETURNING id",[a,wa])).rows[0].id;
+ assert.equal((await db.query('SELECT count(*)::int n FROM wards')).rows[0].n,1);
+ pass('Legacy data stays quarantined and setup requires a bed');
+ await db.query('SELECT complete_hospital_setup($1)',[a]);
+ await asUser(users[1]);
+ const b=(await db.query('SELECT create_hospital($1::jsonb) id',[JSON.stringify({name:'Hospital B',code:'hospital-b'})])).rows[0].id;
+ const wb=(await db.query("INSERT INTO wards(hospital_id,name,code) VALUES($1,'ICU','ICU') RETURNING id",[b])).rows[0].id;
+ const bb=(await db.query("INSERT INTO beds(hospital_id,ward_id,bed_number) VALUES($1,$2,'ICU-01') RETURNING id",[b,wb])).rows[0].id;
+ await db.query('SELECT complete_hospital_setup($1)',[b]);
+ assert.equal((await db.query('SELECT count(*)::int n FROM hospitals')).rows[0].n,1);
+ assert.equal((await db.query('SELECT count(*)::int n FROM wards WHERE hospital_id=$1',[a])).rows[0].n,0);
+ await fails("INSERT INTO wards(hospital_id,name,code) VALUES($1,'Intruder','X')",[a],/row-level security/);
+ await fails("INSERT INTO beds(hospital_id,ward_id,bed_number) VALUES($1,$2,'BAD')",[b,wa],/foreign key/);
+ pass('Hospital B cannot read or write A; duplicate ward codes work across hospitals; cross-hospital references fail');
+ await asUser(users[0]);
+ const patient={full_name:'Test Patient',age:40,gender:'male',mobile:'9999999999'};
+ const payload={patient,bedId:ba,wardId:wa,admittingDoctor:'Doctor A',provisionalDiagnosis:'Observation'};
+ await fails("SELECT hospital_clinical_action($1,'admit',$2)",[b,JSON.stringify({...payload,bedId:bb,wardId:wb})],/access denied/);
+ const result=(await db.query("SELECT hospital_clinical_action($1,'admit',$2) result",[a,JSON.stringify(payload)])).rows[0].result;
+ await fails("SELECT hospital_clinical_action($1,'admit',$2)",[a,JSON.stringify(payload)],/unavailable/);
+ assert.equal((await db.query('SELECT count(*)::int n FROM patients')).rows[0].n,1);
+ pass('Admission is tenant checked, occupies its bed, and rejects double allocation without orphan patients');
+ const target=(await db.query("INSERT INTO beds(hospital_id,ward_id,bed_number) VALUES($1,$2,'ICU-02') RETURNING id",[a,wa])).rows[0].id;
+ await fails("SELECT hospital_clinical_action($1,'shift',$2)",[a,JSON.stringify({admissionId:result.admission.id,fromBedId:ba,toBedId:bb,reason:'Wrong hospital'})],/unavailable/);
+ await db.query("SELECT hospital_clinical_action($1,'shift',$2)",[a,JSON.stringify({admissionId:result.admission.id,fromBedId:ba,toBedId:target,reason:'Transfer'})]);
+ assert.equal((await db.query('SELECT status FROM beds WHERE id=$1',[ba])).rows[0].status,'cleaning');
+ assert.equal((await db.query('SELECT bed_id FROM admissions WHERE id=$1',[result.admission.id])).rows[0].bed_id,target);
+ pass('Transfer rejects foreign beds and updates admission and bed statuses atomically');
+ const token=(await db.query("SELECT invite_hospital_staff($1,'staff2@example.com','Nurse') token",[a])).rows[0].token;
+ await asUser(users[1]);
+ await fails('SELECT accept_hospital_invitation($1)',[token],/another verified email/);
+ await asUser(users[2]); await db.query('SELECT accept_hospital_invitation($1)',[token]);
+ await fails('SELECT accept_hospital_invitation($1)',[token],/expired/);
+ await fails("UPDATE hospital_memberships SET role='Admin' WHERE user_id=$1",[users[2]],/permission denied/);
+ await fails("SELECT invite_hospital_staff($1,'other@example.com','Admin')",[a],/Administrator/);
+ await fails("SELECT hospital_clinical_action($1,'discharge',$2)",[a,JSON.stringify({admissionId:result.admission.id,bedId:target,dischargeType:'normal',dischargeSummary:'Done'})],/Discharge access denied/);
+ await db.query("SELECT hospital_clinical_action($1,'clean',$2)",[a,JSON.stringify({bedId:ba})]);
+ pass('Invitations are email-bound and single-use; nurses cannot elevate role, invite admins, or discharge');
+ await asUser(users[0]);
+ await db.query("SELECT hospital_clinical_action($1,'discharge',$2)",[a,JSON.stringify({admissionId:result.admission.id,bedId:target,dischargeType:'normal',dischargeSummary:'Done'})]);
+ assert.equal((await db.query('SELECT status FROM beds WHERE id=$1',[target])).rows[0].status,'cleaning');
+ await fails("SELECT hospital_clinical_action($1,'discharge',$2)",[a,JSON.stringify({admissionId:result.admission.id,bedId:target,dischargeType:'normal',dischargeSummary:'Done'})],/Active admission/);
+ await db.query("SELECT update_hospital_details($1,$2)",[a,JSON.stringify({name:'Renamed A',address:'Main Road',phone:'123'})]);
+ assert.equal((await db.query('SELECT hospital_staff($1)',[a])).rows.length,2);
+ await fails("SELECT manage_hospital_staff($1,$2,'Nurse',false)",[a,users[0]],/owner/);
+ await db.query("SELECT manage_hospital_staff($1,$2,'Nurse',false)",[a,users[2]]);
+ await asUser(users[2]);
+ assert.equal((await db.query('SELECT count(*)::int n FROM patients')).rows[0].n,0);
+ await fails('SELECT hospital_staff($1)',[a],/Administrator/);
+ await asUser(users[0]);
+ pass('Admins can update branding and revoke staff; owner protection and revocation are enforced by database');
+ await db.exec('RESET ROLE; SET ROLE anon');
+ await fails('SELECT * FROM patients',[],/permission denied/);
+ await fails("SELECT create_hospital('{}')",[],/permission denied/);
+ pass('Discharge cannot repeat and anonymous users cannot read patients or create hospitals');
+ await db.exec('RESET ROLE');
+ await db.query("INSERT INTO hospitals(name,code) VALUES('DKMM','dkmm')");
+ const inventory=fs.readFileSync('supabase/seeds/dkmm_inventory.sql','utf8');
+ await db.exec(inventory); await db.exec(inventory);
+ const counts=(await db.query("SELECT (SELECT count(*) FROM wards WHERE hospital_id=h.id)::int wards,(SELECT count(*) FROM beds WHERE hospital_id=h.id)::int beds,(SELECT count(*) FROM doctors WHERE hospital_id=h.id)::int doctors FROM hospitals h WHERE code='dkmm'")).rows[0];
+ assert.deepEqual(counts,{wards:6,beds:33,doctors:5});
+ assert.equal((await db.query('SELECT count(*)::int n FROM beds WHERE hospital_id=$1',[b])).rows[0].n,1);
+ pass('DKMM inventory creates six wards, 33 beds and five doctors; rerun is duplicate-free and other hospitals stay unchanged');
+ console.log(`${checks} integration checks passed against PostgreSQL (PGlite).`);
+ await db.close();
+}
+main().catch(async error=>{console.error(error);await db.close();process.exitCode=1;});

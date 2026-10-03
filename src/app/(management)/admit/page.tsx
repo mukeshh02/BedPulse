@@ -1,11 +1,15 @@
 'use client';
+import {usePullRefresh} from '@/components/PullToRefresh';
+import { DataSkeleton } from '@/components/LoadingFeedback';
+
+import { ButtonSpinner } from '@/components/LoadingFeedback';
+
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Ward, Bed } from '@/types';
-import { DataService } from '@/lib/supabase';
-import { AppShell } from '@/components/AppShell';
+import { DataService, DoctorProfile } from '@/lib/supabase';
 import {
   UserPlus,
   BedDouble,
@@ -22,6 +26,8 @@ import {
   Calendar,
   AlertTriangle,
   RotateCcw,
+  Plus,
+  X,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -32,7 +38,14 @@ function AdmissionWizard() {
 
   const [wards, setWards] = useState<Ward[]>([]);
   const [beds, setBeds] = useState<Bed[]>([]);
+  const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Quick Add Doctor Modal State
+  const [showAddDocModal, setShowAddDocModal] = useState(false);
+  const [newDocName, setNewDocName] = useState('');
+  const [newDocSpecialty, setNewDocSpecialty] = useState('');
+  const [newDocDept, setNewDocDept] = useState('Critical Care / ICU');
 
   // Form Fields
   const [fullName, setFullName] = useState('');
@@ -59,12 +72,21 @@ function AdmissionWizard() {
   const [errorMsg, setErrorMsg] = useState('');
   const [admittedRecord, setAdmittedRecord] = useState<any | null>(null);
 
-  // Load wards & beds
+  // Load wards, beds & doctors
   const loadData = async () => {
     try {
-      const [w, b] = await Promise.all([DataService.getWards(), DataService.getBeds()]);
+      const [w, b, d] = await Promise.all([
+        DataService.getWards(),
+        DataService.getBeds(),
+        DataService.getDoctors(),
+      ]);
       setWards(w);
       setBeds(b);
+      setDoctors(d);
+
+      if (d.length > 0 && (!admittingDoctor || admittingDoctor === 'Dr. Sharma (Cardio)')) {
+        setAdmittingDoctor(d[0].name);
+      }
 
       if (queryBedId) {
         const foundBed = b.find((bed) => bed.id === queryBedId);
@@ -82,6 +104,23 @@ function AdmissionWizard() {
     }
   };
 
+  const handleCreateDoctor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDocName.trim()) return;
+    const created = await DataService.addDoctor({
+      name: newDocName.trim().startsWith('Dr.') ? newDocName.trim() : `Dr. ${newDocName.trim()}`,
+      specialty: newDocSpecialty.trim() || 'Consultant Specialist',
+      department: newDocDept,
+    });
+    const refreshed = await DataService.getDoctors();
+    setDoctors(refreshed);
+    setAdmittingDoctor(created.name);
+    setNewDocName('');
+    setNewDocSpecialty('');
+    setShowAddDocModal(false);
+  };
+
+ usePullRefresh(loadData);
   useEffect(() => {
     loadData();
   }, [queryBedId]);
@@ -160,25 +199,25 @@ function AdmissionWizard() {
     loadData();
   };
 
+  if (loading) return <DataSkeleton />;
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 md:p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_20px_rgba(29,119,255,0.04)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 md:p-6 rounded-3xl border border-brand-50/80 shadow-[0_4px_20px_rgba(24,62,51,0.04)]">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600 shadow-sm shrink-0">
             <UserPlus className="w-6 h-6 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900">
-                Patient Admission &amp; Bed Allocation
+              <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+                Admit patient
               </h1>
-              <span className="bg-brand-50 text-brand-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-brand-200">
-                Step 1 &amp; 2
-              </span>
+
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Rapid intake clinical wizard: register patient demographics and allocate a live vacant bed.
+              Register a patient and choose an available bed.
             </p>
           </div>
         </div>
@@ -189,11 +228,11 @@ function AdmissionWizard() {
             className="px-3.5 py-2 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs font-bold hover:bg-slate-50 transition flex items-center gap-1.5 shadow-sm"
           >
             <BedDouble className="w-3.5 h-3.5 text-brand-500" />
-            Check Live Beds
+            View beds
           </Link>
           <Link
             href="/patients"
-            className="px-3.5 py-2 rounded-2xl bg-blue-50 text-brand-600 border border-blue-100 text-xs font-bold hover:bg-blue-100 transition shadow-sm"
+            className="px-3.5 py-2 rounded-2xl bg-brand-50 text-brand-600 border border-brand-100 text-xs font-bold hover:bg-brand-100 transition shadow-sm"
           >
             Inpatient Directory
           </Link>
@@ -209,7 +248,7 @@ function AdmissionWizard() {
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-slate-900">Admission Confirmed Successfully!</h3>
+                <h3 className="text-xl font-semibold text-slate-900">Admission Confirmed Successfully!</h3>
                 <p className="text-xs text-emerald-700 font-semibold">
                   Patient registered and bed status marked as Occupied.
                 </p>
@@ -230,7 +269,7 @@ function AdmissionWizard() {
             <div className="text-center border-b border-slate-200 pb-3">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <HeartPulse className="w-5 h-5 text-brand-500" />
-                <h4 className="text-base font-black text-slate-900">BEDPULSE™ HOSPITAL NETWORK</h4>
+                <h4 className="text-base font-semibold text-slate-900">BEDPULSE™ HOSPITAL NETWORK</h4>
               </div>
               <p className="text-[10px] text-slate-500">Inpatient Care OS • Admission Slip &amp; Allocation Token</p>
               <p className="text-[10px] text-slate-400">Helpline: +91 7000371321 • WebVission</p>
@@ -251,7 +290,7 @@ function AdmissionWizard() {
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase text-slate-400">Allocated Bed:</span>
-                <p className="font-black text-emerald-600 text-sm">{admittedRecord.bedNumber} ({admittedRecord.wardName})</p>
+                <p className="font-semibold text-emerald-600 text-sm">{admittedRecord.bedNumber} ({admittedRecord.wardName})</p>
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase text-slate-400">Attending Doctor:</span>
@@ -305,10 +344,10 @@ function AdmissionWizard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* STEP 1: PATIENT DEMOGRAPHICS (7 COLS) */}
-            <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] space-y-5">
+            <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-brand-50/80 shadow-[0_4px_25px_rgba(24,62,51,0.04)] space-y-5">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded-xl bg-brand-500 text-white flex items-center justify-center font-black text-xs">
+                  <span className="w-7 h-7 rounded-xl bg-brand-500 text-white flex items-center justify-center font-semibold text-xs">
                     1
                   </span>
                   <h3 className="font-extrabold text-slate-800 text-sm">
@@ -419,25 +458,35 @@ function AdmissionWizard() {
               {/* Admitting Doctor & Diagnosis */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Admitting Consultant *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Admitting Consultant *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddDocModal(true)}
+                      className="text-[11px] font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1 hover:underline"
+                    >
+                      <Plus className="w-3 h-3" /> Add Doctor
+                    </button>
+                  </div>
                   <select
                     value={admittingDoctor}
-                    onChange={(e) => setAdmittingDoctor(e.target.value)}
+                    onChange={(e) => {
+                      if (e.target.value === '__add_new__') {
+                        setShowAddDocModal(true);
+                      } else {
+                        setAdmittingDoctor(e.target.value);
+                      }
+                    }}
                     className="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white font-medium"
                   >
-                    <option value="Dr. Sharma (Cardio)">Dr. Sharma (Cardiology)</option>
-                    <option value="Dr. Alexander Wright, MD (Intensivist)">
-                      Dr. Alexander Wright (Intensive Care)
-                    </option>
-                    <option value="Dr. Priya Mehta (Pulmonology)">
-                      Dr. Priya Mehta (Pulmonology)
-                    </option>
-                    <option value="Dr. R. K. Gupta (General Medicine)">
-                      Dr. R. K. Gupta (Gen Medicine)
-                    </option>
-                    <option value="Dr. Sunita Rao (Gynecology)">Dr. Sunita Rao (Gynecology)</option>
+                    {doctors.map((d) => (
+                      <option key={d.id} value={d.name}>
+                        {d.name} ({d.specialty})
+                      </option>
+                    ))}
+                    <option value="__add_new__">+ Add New Doctor / Consultant...</option>
                   </select>
                 </div>
                 <div>
@@ -522,11 +571,11 @@ function AdmissionWizard() {
 
             {/* STEP 2: BED SELECTION & ALLOCATION (5 COLS) */}
             <div className="lg:col-span-5 flex flex-col gap-5">
-              <div className="bg-white p-6 rounded-3xl border border-blue-50/80 shadow-[0_4px_25px_rgba(29,119,255,0.04)] flex-1 flex flex-col justify-between">
+              <div className="bg-white p-6 rounded-3xl border border-brand-50/80 shadow-[0_4px_25px_rgba(24,62,51,0.04)] flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-xs">
+                      <span className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-semibold text-xs">
                         2
                       </span>
                       <h3 className="font-extrabold text-slate-800 text-sm">
@@ -592,7 +641,7 @@ function AdmissionWizard() {
                               }`}
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-black text-xs">{bed.bed_number}</span>
+                                <span className="font-semibold text-xs">{bed.bed_number}</span>
                                 {isSelected && <CheckCircle2 className="w-4 h-4 text-white" />}
                               </div>
                               <span
@@ -606,7 +655,7 @@ function AdmissionWizard() {
                                 {bed.has_oxygen && (
                                   <span
                                     className={`text-[8px] font-bold px-1 rounded ${
-                                      isSelected ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'
+                                      isSelected ? 'bg-white/20 text-white' : 'bg-brand-100 text-brand-700'
                                     }`}
                                   >
                                     O₂
@@ -615,7 +664,7 @@ function AdmissionWizard() {
                                 {bed.has_ventilator && (
                                   <span
                                     className={`text-[8px] font-bold px-1 rounded ${
-                                      isSelected ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'
+                                      isSelected ? 'bg-white/20 text-white' : 'bg-brand-100 text-brand-700'
                                     }`}
                                   >
                                     VENT
@@ -631,7 +680,7 @@ function AdmissionWizard() {
 
                   {/* Selected Bed Summary Card */}
                   {selectedBed && selectedWard && (
-                    <div className="mt-4 p-3.5 bg-gradient-to-br from-blue-50/60 to-emerald-50/60 rounded-2xl border border-blue-100/80">
+                    <div className="mt-4 p-3.5 bg-gradient-to-br from-brand-50/60 to-emerald-50/60 rounded-2xl border border-brand-100/80">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-[10px] font-bold uppercase text-slate-400">Chosen Allocation</p>
@@ -641,7 +690,7 @@ function AdmissionWizard() {
                           <p className="text-[10px] text-slate-500">{selectedWard.floor_number} • {selectedWard.department}</p>
                         </div>
                         <div className="text-right">
-                          <span className="text-xs font-black text-emerald-700">
+                          <span className="text-xs font-semibold text-emerald-700">
                             ₹{selectedBed.price_per_day || selectedWard.base_price_per_day}/day
                           </span>
                           <span className="text-[9px] block text-slate-400 font-medium">Daily Ward Charge</span>
@@ -657,7 +706,7 @@ function AdmissionWizard() {
                     type="submit"
                     disabled={isSubmitting || !selectedBedId}
                     className="w-full py-3.5 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-brand-500/25"
-                  >
+                  >{isSubmitting && <ButtonSpinner />}
                     {isSubmitting ? (
                       <span>Allocating Bed &amp; Syncing Supabase...</span>
                     ) : (
@@ -676,16 +725,100 @@ function AdmissionWizard() {
           </div>
         </form>
       )}
+
+      {/* QUICK ADD DOCTOR MODAL */}
+      {showAddDocModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-brand-50 relative space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+                  <Stethoscope className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">Add Doctor / Consultant</h3>
+                  <p className="text-[11px] text-slate-500">Register new doctor to admission roster</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddDocModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDoctor} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Doctor Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={newDocName}
+                  onChange={(e) => setNewDocName(e.target.value)}
+                  placeholder="e.g. Dr. Khileshar Sharma"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Clinical Specialty *</label>
+                <input
+                  type="text"
+                  required
+                  value={newDocSpecialty}
+                  onChange={(e) => setNewDocSpecialty(e.target.value)}
+                  placeholder="e.g. Pediatrics / Neonatal Care"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Department</label>
+                <select
+                  value={newDocDept}
+                  onChange={(e) => setNewDocDept(e.target.value)}
+                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-800"
+                >
+                  <option value="Critical Care / ICU">Critical Care / ICU</option>
+                  <option value="General Medicine">General Medicine</option>
+                  <option value="Pediatrics &amp; Neonatology">Pediatrics &amp; Neonatology</option>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Surgery / OT">Surgery / OT</option>
+                  <option value="Obstetrics &amp; Gynecology">Obstetrics &amp; Gynecology</option>
+                </select>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddDocModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/25 flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-4 h-4" /> Save Doctor to Roster
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function AdmitPage() {
   return (
-    <AppShell>
+    <>
       <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading Admission Wizard...</div>}>
         <AdmissionWizard />
       </Suspense>
-    </AppShell>
+    </>
   );
 }

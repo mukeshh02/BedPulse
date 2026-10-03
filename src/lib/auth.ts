@@ -1,4 +1,7 @@
 'use client';
+import { createClient } from '@/utils/supabase/client';
+import { HospitalService } from './hospital';
+let verifiedStaff: ActiveStaff | null = null;
 
 export type StaffRole = 'Doctor' | 'Nurse' | 'Admin';
 
@@ -13,11 +16,11 @@ export interface ActiveStaff {
 }
 
 export const defaultDoctor: ActiveStaff = {
-  name: 'Dr. Alexander Wright, MD',
-  title: 'Chief of Inpatient Care & Intensive Care Unit',
+  name: 'Duty Doctor, MD',
+  title: 'Attending Physician & Inpatient Care',
   role: 'Doctor',
-  sector: 'ICU / Critical Care Wing',
-  email: 'alexander.m@bedpulse.health',
+  sector: 'ICU / General Ward Wing',
+  email: 'doctor@bedpulse.health',
   avatar: '/assets/doctor.png',
   loginTime: new Date().toISOString(),
 };
@@ -27,7 +30,7 @@ export const defaultNurse: ActiveStaff = {
   title: 'Head Staff Nurse & Nursing Lead',
   role: 'Nurse',
   sector: 'General Medical Ward',
-  email: 'priya.nurse@bedpulse.health',
+  email: 'nurse@bedpulse.health',
   avatar: '',
   loginTime: new Date().toISOString(),
 };
@@ -43,35 +46,20 @@ export const defaultAdmin: ActiveStaff = {
 };
 
 export const AuthService = {
-  getCurrentStaff(): ActiveStaff | null {
-    if (typeof window === 'undefined') return null;
-    const stored = localStorage.getItem('bedpulse_active_staff');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {}
-    }
-    return null;
+  getCurrentStaff(): ActiveStaff | null { return verifiedStaff; },
+  async refresh(): Promise<ActiveStaff | null> {
+    const {data:{user},error} = await createClient().auth.getUser();
+    if(error || !user) { verifiedStaff = null; return null; }
+    const m = await HospitalService.resolve();
+    if(!m || !m.hospital.setup_completed) { verifiedStaff = null; return null; }
+    verifiedStaff = {name:user.user_metadata.full_name || user.email || 'Staff', email:user.email || '', role:m.role, sector:m.hospital.name, title:m.role, loginTime:new Date().toISOString()};
+    return verifiedStaff;
   },
-
-  login(staff: ActiveStaff) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('bedpulse_active_staff', JSON.stringify(staff));
-    window.dispatchEvent(new Event('auth_change'));
-  },
-
-  switchRole(role: StaffRole): ActiveStaff {
-    let staff = defaultDoctor;
-    if (role === 'Nurse') staff = defaultNurse;
-    if (role === 'Admin') staff = defaultAdmin;
-    this.login(staff);
-    return staff;
-  },
-
-  logout() {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('bedpulse_active_staff');
-    window.dispatchEvent(new Event('auth_change'));
+  login(_staff: ActiveStaff) { throw new Error('Sign in with your hospital account.'); },
+  switchRole(_role: StaffRole): ActiveStaff { if(!verifiedStaff) throw new Error('Sign in first.'); return verifiedStaff; },
+  async logout() { await createClient().auth.signOut(); verifiedStaff=null; HospitalService.clear(); localStorage.removeItem('bedpulse_active_staff'); document.cookie='bedpulse_auth=; path=/; max-age=0'; window.dispatchEvent(new Event('auth_change')); },
+  isAuthenticated(): boolean {
+    return this.getCurrentStaff() !== null;
   },
 
   hasPermission(role: StaffRole, action: 'admit' | 'shift' | 'discharge' | 'ward_master' | 'clean_beds'): boolean {
@@ -93,10 +81,10 @@ export const AuthService = {
         return {
           title: 'Attending Physician',
           label: 'Doctor',
-          themeColor: '#1D77FF',
-          badgeBg: 'bg-blue-50',
+          themeColor: '#183E33',
+          badgeBg: 'bg-brand-50',
           badgeText: 'text-brand-600',
-          badgeBorder: 'border-blue-200',
+          badgeBorder: 'border-brand-200',
           focusDesc: 'Clinical rounds, vitals telemetry, patient admissions, and discharge clearances.',
         };
       case 'Nurse':
@@ -113,11 +101,11 @@ export const AuthService = {
         return {
           title: 'Hospital Operations Director',
           label: 'Admin',
-          themeColor: '#8B5CF6',
-          badgeBg: 'bg-purple-50',
-          badgeText: 'text-purple-600',
-          badgeBorder: 'border-purple-200',
-          focusDesc: 'Ward Master Studio (Add Wards/Beds, Tariffs), hospital occupancy telemetry, and system admin.',
+          themeColor: '#63816C',
+          badgeBg: 'bg-brand-50',
+          badgeText: 'text-brand-600',
+          badgeBorder: 'border-brand-200',
+          focusDesc: 'Hospital Settings Hub (Add Wards/Beds, Doctors Roster, Staff Onboarding), hospital occupancy telemetry, and system admin.',
         };
     }
   },

@@ -1,4 +1,6 @@
 'use client';
+import { ButtonSpinner } from '@/components/LoadingFeedback';
+
 
 import React, { useState } from 'react';
 import { Ward, Bed, Admission } from '@/types';
@@ -83,7 +85,7 @@ export const ShiftBedModal: React.FC<ShiftBedModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-xl border border-blue-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-3xl w-full max-w-xl border border-brand-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -125,7 +127,7 @@ export const ShiftBedModal: React.FC<ShiftBedModalProps> = ({
             </div>
             <div className="text-right">
               <span className="text-[10px] font-bold text-slate-400 uppercase">Current Bed</span>
-              <p className="text-sm font-black text-slate-800">
+              <p className="text-sm font-semibold text-slate-800">
                 {currentBed?.bed_number} ({currentWard?.code})
               </p>
             </div>
@@ -241,7 +243,7 @@ export const ShiftBedModal: React.FC<ShiftBedModalProps> = ({
               type="submit"
               disabled={isSubmitting || !targetBedId}
               className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-2xl font-bold shadow-md shadow-amber-500/20 transition flex items-center gap-2"
-            >
+            >{isSubmitting && <ButtonSpinner />}
               {isSubmitting ? (
                 <span>Executing Shift...</span>
               ) : (

@@ -13,25 +13,19 @@ const config: Config = {
       },
       colors: {
         brand: {
-          50: '#EEF6FF',
-          100: '#D9EBFF',
-          200: '#B9DAFE',
-          300: '#85BEFD',
-          400: '#3892FE',
-          500: '#1D77FF',
-          600: '#1561D9',
-          700: '#0F48A6',
-          800: '#113E85',
-          900: '#13366F',
+          50: '#F1F5EF', 100: '#E5EDE2', 200: '#CEDDCB',
+          300: '#ABC2A9', 400: '#789986', 500: '#355C45',
+          600: '#285744', 700: '#183E33', 800: '#16372D',
+          900: '#122D25', 950: '#0A1E18',
         },
         surface: {
-          canvas: '#F1F6FD',
+          canvas: '#F8FAF9',
           card: '#FFFFFF',
         }
       },
       boxShadow: {
-        'soft-glow': '0 10px 35px rgba(29, 119, 255, 0.06)',
-        'blue-glow': '0 8px 25px rgba(29, 119, 255, 0.25)',
+        'soft-glow': '0 10px 35px rgba(24, 62, 51, 0.06)',
+        'blue-glow': '0 8px 25px rgba(24, 62, 51, 0.25)',
       },
       borderRadius: {
         '2xl': '1rem',

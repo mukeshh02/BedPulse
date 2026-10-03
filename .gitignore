@@ -9,6 +9,9 @@
 
 # Next.js
 /.next/
+/.next-dev/
+/.next-hospital-check/
+/.hospital-verification/
 /out/
 
 # Production

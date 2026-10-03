@@ -1,4 +1,6 @@
 'use client';
+import { ButtonSpinner } from '@/components/LoadingFeedback';
+
 
 import React, { useState, useEffect } from 'react';
 import { Ward, Bed } from '@/types';
@@ -104,7 +106,7 @@ export const AdmissionModal: React.FC<AdmissionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-2xl border border-blue-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-3xl w-full max-w-2xl border border-brand-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Modal Header */}
         <div className="px-6 py-4 bg-gradient-to-r from-brand-600 to-brand-500 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -113,7 +115,7 @@ export const AdmissionModal: React.FC<AdmissionModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold">Step 1 & 2: Patient Admission & Bed Allocation</h3>
-              <p className="text-[11px] text-blue-100">BedPulse Inpatient Intake System</p>
+              <p className="text-[11px] text-brand-100">BedPulse Inpatient Intake System</p>
             </div>
           </div>
           <button
@@ -334,7 +336,7 @@ export const AdmissionModal: React.FC<AdmissionModalProps> = ({
               type="submit"
               disabled={isSubmitting || !selectedBedId}
               className="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white rounded-2xl font-bold shadow-md shadow-brand-500/20 transition flex items-center gap-2"
-            >
+            >{isSubmitting && <ButtonSpinner />}
               {isSubmitting ? (
                 <span>Admitting...</span>
               ) : (

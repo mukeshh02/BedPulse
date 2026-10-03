@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import {
   X,
@@ -41,7 +40,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#F9F9FF] rounded-3xl w-full max-w-lg border border-blue-100 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col font-sans">
+      <div className="bg-[#F8FAF9] rounded-3xl w-full max-w-lg border border-brand-100 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col font-sans">
         {/* Header */}
         <div className="px-5 py-3.5 bg-white border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
@@ -64,14 +63,14 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         {/* Scrollable Profile Body */}
         <div className="p-5 overflow-y-auto space-y-4 text-xs">
           {/* Profile Hero Card with Atmospheric Backdrop */}
-          <div className="relative w-full rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(29,119,255,0.06)] flex flex-col items-center text-center overflow-hidden border border-blue-50">
+          <div className="relative w-full rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(24,62,51,0.06)] flex flex-col items-center text-center overflow-hidden border border-brand-50">
             {/* Glow Orbs */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-blue-100/60 blur-xl pointer-events-none"></div>
+            <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-brand-100/60 blur-xl pointer-events-none"></div>
             <div className="absolute -bottom-12 -left-12 w-32 h-32 rounded-full bg-emerald-100/50 blur-xl pointer-events-none"></div>
 
             {/* Avatar & Status Pulse */}
             <div className="relative mt-1 mb-2.5">
-              <div className="w-20 h-20 rounded-full bg-blue-50 border-2 border-brand-200 p-0.5 shadow-sm flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 rounded-full bg-brand-50 border-2 border-brand-200 p-0.5 shadow-sm flex items-center justify-center overflow-hidden">
                 <div className="relative w-full h-full rounded-full overflow-hidden">
                   <Image
                     src="/assets/doctor.png"
@@ -110,12 +109,12 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 <BadgeAlert className="w-3 h-3 text-slate-400" /> #BP-DOC-8021
               </span>
               <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px] flex items-center gap-1">
-                <Building2 className="w-3 h-3 text-slate-400" /> Central Medical Center
+                <Building2 className="w-3 h-3 text-slate-400" /> {'BedPulse Hospital'}
               </span>
             </div>
 
             {/* On-Duty Rounds Toggle Pill */}
-            <div className="mt-4 w-full flex items-center justify-between bg-blue-50/70 px-4 py-2.5 rounded-full border border-blue-100/80">
+            <div className="mt-4 w-full flex items-center justify-between bg-brand-50/70 px-4 py-2.5 rounded-full border border-brand-100/80">
               <div className="flex items-center gap-2">
                 <span
                   className={`w-2.5 h-2.5 rounded-full ${
@@ -156,31 +155,31 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
             <div className="grid grid-cols-2 gap-2.5">
               {/* Shift Timing */}
-              <div className="col-span-2 rounded-2xl bg-white p-3.5 shadow-sm border border-blue-50 flex items-center justify-between">
+              <div className="col-span-2 rounded-2xl bg-white p-3.5 shadow-sm border border-brand-50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center">
                     <Sun className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 font-semibold">Active Rotational Shift</p>
-                    <p className="text-xs font-black text-slate-800">{shiftType}</p>
+                    <p className="text-xs font-semibold text-slate-800">{shiftType}</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold bg-brand-50 text-brand-600 px-2.5 py-1 rounded-full border border-blue-100">
+                <span className="text-[10px] font-bold bg-brand-50 text-brand-600 px-2.5 py-1 rounded-full border border-brand-100">
                   Day Shift
                 </span>
               </div>
 
               {/* Assigned Beds */}
-              <div className="rounded-2xl bg-white p-3.5 shadow-sm border border-blue-50 flex flex-col justify-between">
+              <div className="rounded-2xl bg-white p-3.5 shadow-sm border border-brand-50 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-400 font-semibold">Active Inpatients</span>
-                  <div className="w-7 h-7 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center">
                     <BedDouble className="w-4 h-4" />
                   </div>
                 </div>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-slate-900">{totalOccupied}</span>
+                  <span className="text-2xl font-semibold text-slate-900">{totalOccupied}</span>
                   <span className="text-[10px] text-slate-400 font-medium">Patients</span>
                 </div>
                 <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
@@ -189,7 +188,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               </div>
 
               {/* Supervised Wards */}
-              <div className="rounded-2xl bg-white p-3.5 shadow-sm border border-blue-50 flex flex-col justify-between">
+              <div className="rounded-2xl bg-white p-3.5 shadow-sm border border-brand-50 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-400 font-semibold">Supervised Units</span>
                   <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -217,10 +216,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   onClose();
                   onOpenWardMaster();
                 }}
-                className="w-full text-left rounded-2xl bg-white p-3 shadow-sm border border-blue-50 flex items-center justify-between hover:bg-slate-50 transition"
+                className="w-full text-left rounded-2xl bg-white p-3 shadow-sm border border-brand-50 flex items-center justify-between hover:bg-slate-50 transition"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
                     <Sliders className="w-4 h-4" />
                   </div>
                   <div>
@@ -231,7 +230,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 <span className="text-slate-400 text-xs">➔</span>
               </button>
 
-              <div className="rounded-2xl bg-white p-3 shadow-sm border border-blue-50 flex items-center justify-between">
+              <div className="rounded-2xl bg-white p-3 shadow-sm border border-brand-50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                     <Bell className="w-4 h-4" />

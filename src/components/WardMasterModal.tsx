@@ -1,4 +1,6 @@
 'use client';
+import { ButtonSpinner } from '@/components/LoadingFeedback';
+
 
 import React, { useState } from 'react';
 import { Ward, Bed } from '@/types';
@@ -27,7 +29,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
   const [wardName, setWardName] = useState('');
   const [wardCode, setWardCode] = useState('');
   const [wardFloor, setWardFloor] = useState('1st Floor');
-  const [wardColor, setWardColor] = useState('#1D77FF');
+  const [wardColor, setWardColor] = useState('#183E33');
 
   // Add Bed Form
   const [selectedWardId, setSelectedWardId] = useState(wards[0]?.id || '');
@@ -116,16 +118,16 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-2xl border border-blue-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-3xl w-full max-w-2xl border border-brand-100 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-between">
+        <div className="px-6 py-4 bg-gradient-to-r from-brand-600 to-brand-600 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center">
               <Sliders className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="text-base font-bold">Dynamic Ward & Bed Master Studio</h3>
-              <p className="text-[11px] text-purple-100">Configure Wards, Beds & Room Charges</p>
+              <p className="text-[11px] text-brand-100">Configure Wards, Beds & Room Charges</p>
             </div>
           </div>
           <button
@@ -146,7 +148,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
             }}
             className={`pb-2.5 px-3 text-xs font-bold transition border-b-2 flex items-center gap-1.5 ${
               activeTab === 'beds'
-                ? 'border-purple-600 text-purple-700'
+                ? 'border-brand-600 text-brand-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -162,7 +164,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
             }}
             className={`pb-2.5 px-3 text-xs font-bold transition border-b-2 flex items-center gap-1.5 ${
               activeTab === 'wards'
-                ? 'border-purple-600 text-purple-700'
+                ? 'border-brand-600 text-brand-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -178,7 +180,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
             }}
             className={`pb-2.5 px-3 text-xs font-bold transition border-b-2 flex items-center gap-1.5 ${
               activeTab === 'addBed'
-                ? 'border-purple-600 text-purple-700'
+                ? 'border-brand-600 text-brand-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -194,7 +196,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
             }}
             className={`pb-2.5 px-3 text-xs font-bold transition border-b-2 flex items-center gap-1.5 ${
               activeTab === 'addWard'
-                ? 'border-purple-600 text-purple-700'
+                ? 'border-brand-600 text-brand-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -226,7 +228,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
                 <p className="text-slate-500">All configured beds in the hospital:</p>
                 <button
                   onClick={() => setActiveTab('addBed')}
-                  className="px-3 py-1 bg-purple-600 text-white rounded-xl font-bold flex items-center gap-1 text-[11px]"
+                  className="px-3 py-1 bg-brand-600 text-white rounded-xl font-bold flex items-center gap-1 text-[11px]"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add New Bed
                 </button>
@@ -240,7 +242,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
                       <div className="flex items-center gap-2">
                         <div
                           className="w-2.5 h-2.5 rounded-full"
-                          style={{ backgroundColor: ward?.color_accent || '#1D77FF' }}
+                          style={{ backgroundColor: ward?.color_accent || '#183E33' }}
                         />
                         <div>
                           <p className="font-bold text-slate-800 text-xs">
@@ -277,7 +279,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
                 <p className="text-slate-500">Active hospital wards:</p>
                 <button
                   onClick={() => setActiveTab('addWard')}
-                  className="px-3 py-1 bg-purple-600 text-white rounded-xl font-bold flex items-center gap-1 text-[11px]"
+                  className="px-3 py-1 bg-brand-600 text-white rounded-xl font-bold flex items-center gap-1 text-[11px]"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add New Ward
                 </button>
@@ -295,7 +297,7 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
                         </span>
                       </div>
                       <p className="text-[10px] text-slate-500 mt-1">Floor: {w.floor || 'N/A'}</p>
-                      <p className="text-[11px] font-bold text-purple-700 mt-2">
+                      <p className="text-[11px] font-bold text-brand-700 mt-2">
                         {wardBeds.length} Total Configured Beds
                       </p>
                     </div>
@@ -365,8 +367,8 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold shadow-md shadow-purple-600/20"
-                >
+                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold shadow-md shadow-brand-600/20"
+                >{isSubmitting && <ButtonSpinner />}
                   {isSubmitting ? 'Creating Bed...' : 'Save New Bed'}
                 </button>
               </div>
@@ -430,8 +432,8 @@ export const WardMasterModal: React.FC<WardMasterModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold shadow-md shadow-purple-600/20"
-                >
+                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold shadow-md shadow-brand-600/20"
+                >{isSubmitting && <ButtonSpinner />}
                   {isSubmitting ? 'Creating Ward...' : 'Save New Ward'}
                 </button>
               </div>
